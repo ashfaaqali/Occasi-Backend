@@ -1,0 +1,52 @@
+[
+  {
+    "id": 1,
+    "name": "Aisha Mehndi Studio",
+    "cityName": "Mumbai",
+    "location": "Bandra West",
+    "rating": 5,
+    "reviews": 128,
+    "coverImage": "https://example.com/images/aisha_mehndi.jpg",
+    "price": 2500
+  },
+  {
+    "id": 2,
+    "name": "Heena by Farah",
+    "cityName": "Mumbai",
+    "location": "Andheri East",
+    "rating": 4,
+    "reviews": 96,
+    "coverImage": "https://example.com/images/farah_heena.jpg",
+    "price": 2000
+  },
+  {
+    "id": 3,
+    "name": "Zara Mehndi Art",
+    "cityName": "Pune",
+    "location": "Koregaon Park",
+    "rating": 5,
+    "reviews": 150,
+    "coverImage": "https://example.com/images/zara_mehndi.jpg",
+    "price": 3000
+  },
+  {
+    "id": 4,
+    "name": "Sana Henna Creations",
+    "cityName": "Delhi",
+    "location": "Connaught Place",
+    "rating": 4,
+    "reviews": 85,
+    "coverImage": "https://example.com/images/sana_henna.jpg",
+    "price": 2200
+  },
+  {
+    "id": 5,
+    "name": "Amber Mehndi Artistry",
+    "cityName": "Hyderabad",
+    "location": "Banjara Hills",
+    "rating": 5,
+    "reviews": 112,
+    "coverImage": "https://example.com/images/amber_mehndi.jpg",
+    "price": 2800
+  }
+]
