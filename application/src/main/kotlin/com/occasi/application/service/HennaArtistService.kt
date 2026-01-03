@@ -12,6 +12,7 @@ class HennaArtistService(private val repository: HennaArtistRepository) {
     fun registerArtist(artist: HennaArtist): HennaArtist {
         // Ensure bidirectional relationship is set
         artist.designs.forEach { it.artist = artist }
+        artist.startingPrice = artist.designs.minOfOrNull { it.price } ?: 0
         return repository.save(artist)
     }
 }

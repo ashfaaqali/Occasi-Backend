@@ -3,6 +3,7 @@ package com.occasi.application.config
 import com.occasi.application.model.HennaArtist
 import com.occasi.application.model.HennaDesign
 import com.occasi.application.repository.HennaArtistRepository
+import com.occasi.application.service.HennaArtistService
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -11,7 +12,7 @@ import org.springframework.context.annotation.Configuration
 class DataSeeder {
 
     @Bean
-    fun initDatabase(repository: HennaArtistRepository) = CommandLineRunner {
+    fun initDatabase(repository: HennaArtistRepository, artistService: HennaArtistService) = CommandLineRunner {
         if (repository.count() > 0) return@CommandLineRunner
         
         val artist1 = HennaArtist(
@@ -21,8 +22,7 @@ class DataSeeder {
             cityName = "Delhi",
             location = "South Delhi",
             rating = 5,
-            reviews = 10,
-            startingPrice = 500
+            reviews = 10
         )
         // Add designs
         val designs1 = listOf(
@@ -38,16 +38,15 @@ class DataSeeder {
             cityName = "Mumbai",
             location = "Bandra",
             rating = 4,
-            reviews = 5,
-            startingPrice = 300
+            reviews = 5
         )
         val designs2 = listOf(
              HennaDesign(imageUrl = "https://placehold.co/200x200", price = 300, complexity = "Mid", category = "Party").apply { artist = artist2 }
         )
         artist2.designs = designs2
         
-        repository.save(artist1)
-        repository.save(artist2)
+        artistService.registerArtist(artist1)
+        artistService.registerArtist(artist2)
         
         println("Seeded database with artists and designs")
     }
