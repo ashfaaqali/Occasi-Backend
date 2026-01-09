@@ -2,7 +2,9 @@ package com.occasi.application.config
 
 import com.occasi.application.model.HennaArtist
 import com.occasi.application.model.HennaDesign
+import com.occasi.application.model.InvitationCard
 import com.occasi.application.repository.HennaArtistRepository
+import com.occasi.application.repository.InvitationCardRepository
 import com.occasi.application.service.HennaArtistService
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
@@ -94,5 +96,112 @@ class DataSeeder {
 
         artists.forEach { artistService.registerArtist(it) }
         println("✓ Seeded ${artists.size} artists with ${artists.sumOf { it.designs.size }} designs")
+    }
+
+    // Invitation Card Data
+    private val occasionCategories = listOf("WEDDING", "ENGAGEMENT", "MEHNDI", "RECEPTION")
+    private val paperTypes = listOf("MATTE", "GLOSSY", "TEXTURED", "HANDMADE", "RECYCLED")
+    private val materials = listOf("CARDSTOCK", "COTTON", "VELVET", "ACRYLIC", "WOOD")
+    private val printQualities = listOf("STANDARD", "PREMIUM", "LUXURY")
+
+    private val cardNames = mapOf(
+        "WEDDING" to listOf(
+            "Royal Elegance", "Golden Mandala", "Floral Dreams", "Classic Paisley", "Regal Charm",
+            "Eternal Love", "Divine Union", "Sacred Vows", "Timeless Beauty", "Majestic Bloom"
+        ),
+        "ENGAGEMENT" to listOf(
+            "Promise Ring", "Love Story", "Sweet Beginnings", "Heart to Heart", "Forever Yours",
+            "Sparkling Moments", "New Chapter", "Ring Ceremony", "Blissful Bond", "Together Forever"
+        ),
+        "MEHNDI" to listOf(
+            "Henna Night", "Mehndi Magic", "Traditional Touch", "Colorful Celebration", "Festive Vibes",
+            "Sangeet Special", "Dancing Hands", "Bridal Henna", "Mehndi Moments", "Artistic Swirls"
+        ),
+        "RECEPTION" to listOf(
+            "Grand Celebration", "Evening Elegance", "Party Perfect", "Glamour Night", "Starlit Soiree",
+            "Crystal Clear", "Champagne Toast", "Midnight Magic", "Velvet Dreams", "Golden Hour"
+        )
+    )
+
+    private fun getPriceRange(price: Int): String {
+        return when {
+            price < 100 -> "UNDER_100"
+            price <= 200 -> "RANGE_100_200"
+            else -> "ABOVE_200"
+        }
+    }
+
+    private fun generateInvitationCard(index: Int): InvitationCard {
+        val occasion = occasionCategories[index % occasionCategories.size]
+        val paperType = paperTypes.random()
+        val material = materials.random()
+        val printQuality = printQualities.random()
+
+        // Price based on material and print quality
+        val basePrice = when (material) {
+            "CARDSTOCK" -> Random.nextInt(50, 100)
+            "COTTON" -> Random.nextInt(80, 150)
+            "VELVET" -> Random.nextInt(150, 250)
+            "ACRYLIC" -> Random.nextInt(200, 350)
+            "WOOD" -> Random.nextInt(250, 400)
+            else -> Random.nextInt(50, 150)
+        }
+
+        val qualityMultiplier = when (printQuality) {
+            "STANDARD" -> 1.0
+            "PREMIUM" -> 1.3
+            "LUXURY" -> 1.6
+            else -> 1.0
+        }
+
+        val price = (basePrice * qualityMultiplier).toInt()
+        val priceRange = getPriceRange(price)
+
+        val names = cardNames[occasion] ?: listOf("Beautiful Card")
+        val name = names[index % names.size]
+
+        // Standard card dimensions (in inches)
+        val dimensions = listOf(
+            5.0 to 7.0,   // Standard
+            4.0 to 6.0,   // Compact
+            5.5 to 8.5,   // Large
+            4.25 to 5.5   // A2 size
+        )
+        val (width, height) = dimensions.random()
+
+        val paperWeight = when (paperType) {
+            "MATTE", "GLOSSY" -> listOf(250, 300, 350).random()
+            "TEXTURED" -> listOf(280, 320, 380).random()
+            "HANDMADE" -> listOf(200, 250, 300).random()
+            "RECYCLED" -> listOf(220, 270, 320).random()
+            else -> 300
+        }
+
+        return InvitationCard(
+            imageUrl = "https://picsum.photos/id/${200 + index}/400/500",
+            price = price,
+            occasionCategory = occasion,
+            priceRange = priceRange,
+            width = width,
+            height = height,
+            paperType = paperType,
+            paperWeight = paperWeight,
+            material = material,
+            printQuality = printQuality,
+            name = name,
+            description = "Beautiful $name invitation card for your special $occasion celebration. Made with premium $material and $paperType finish.",
+            isCustomizable = Random.nextBoolean(),
+            minOrderQuantity = listOf(10, 25, 50, 100).random(),
+            numberOfOrders = Random.nextInt(0, 500)
+        )
+    }
+
+    @Bean
+    fun initInvitationCards(repository: InvitationCardRepository) = CommandLineRunner {
+        if (repository.count() > 0) return@CommandLineRunner
+
+        val cards = (1..60).map { generateInvitationCard(it) }
+        repository.saveAll(cards)
+        println("✓ Seeded ${cards.size} invitation cards")
     }
 }
