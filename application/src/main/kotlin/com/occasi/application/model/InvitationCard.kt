@@ -25,5 +25,6 @@ data class InvitationCard(
     var description: String? = null,
     var isCustomizable: Boolean = false,
     var minOrderQuantity: Int = 1,
-    var numberOfOrders: Int = 0
+    var numberOfOrders: Int = 0,
+    var tags: String = ""            // Comma-separated tags e.g. "WEDDING,ELEGANT,TRADITIONAL"
 )

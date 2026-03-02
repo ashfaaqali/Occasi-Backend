@@ -41,13 +41,22 @@ class DataSeeder {
         "Lucknow" to listOf("Hazratganj", "Gomti Nagar", "Aliganj", "Indira Nagar", "Mahanagar")
     )
 
-    private val categories = listOf("Party", "Bridal", "Festival", "Traditional", "Arabic", "Indo-Arabic")
+    private val designTags = listOf("BRIDAL", "WEDDING", "ARABIC", "TRADITIONAL", "MINIMAL", "PARTY", "FESTIVAL", "INDO-ARABIC", "FLORAL", "GEOMETRIC")
     private val complexities = listOf("Simple", "Mid", "Complex")
+
+    private val designNames = listOf(
+        "Royal Bridal", "Elegant Paisley", "Floral Vine", "Arabic Swirl", "Mandala Dream",
+        "Classic Henna", "Modern Minimal", "Festive Bloom", "Traditional Charm", "Geometric Art",
+        "Bridal Bliss", "Sunset Henna", "Delicate Lace", "Bold Strokes", "Garden Path",
+        "Peacock Feather", "Lotus Pattern", "Mughal Inspired", "Rajasthani Beauty", "Celtic Knot"
+    )
 
     private fun generateDesigns(artistIndex: Int, count: Int): List<HennaDesign> {
         return (1..count).map { designIndex ->
             val complexity = complexities.random()
-            val category = categories.random()
+            val tagCount = Random.nextInt(2, 5)
+            val tags = designTags.shuffled().take(tagCount).joinToString(",")
+            val name = designNames[(artistIndex * 10 + designIndex) % designNames.size]
             val price = when (complexity) {
                 "Simple" -> Random.nextInt(300, 600)
                 "Mid" -> Random.nextInt(600, 1200)
@@ -56,9 +65,10 @@ class DataSeeder {
             val imageId = (artistIndex * 10) + designIndex + 100
             HennaDesign(
                 imageUrl = "https://picsum.photos/id/$imageId/300/300",
+                name = name,
                 price = price,
                 complexity = complexity,
-                category = category
+                tags = tags
             )
         }
     }
@@ -89,17 +99,35 @@ class DataSeeder {
     }
 
     @Bean
-    fun initDatabase(repository: HennaArtistRepository, artistService: HennaArtistService) = CommandLineRunner {
-        if (repository.count() > 0) return@CommandLineRunner
-
-        val artists = (1..100).map { generateArtist(it) }
-
-        artists.forEach { artistService.registerArtist(it) }
-        println("✓ Seeded ${artists.size} artists with ${artists.sumOf { it.designs.size }} designs")
+    fun initDatabase(
+        repository: HennaArtistRepository,
+        artistService: HennaArtistService,
+        designRepository: com.occasi.application.repository.HennaDesignRepository
+    ) = CommandLineRunner {
+        if (repository.count() == 0L) {
+            val artists = (1..100).map { generateArtist(it) }
+            artists.forEach { artistService.registerArtist(it) }
+            println("✓ Seeded ${artists.size} artists with ${artists.sumOf { it.designs.size }} designs")
+        } else {
+            // Backfill tags on existing designs that have empty tags
+            val designsWithoutTags = designRepository.findAll().filter { it.tags.isBlank() }
+            if (designsWithoutTags.isNotEmpty()) {
+                designsWithoutTags.forEach { design ->
+                    val tagCount = kotlin.random.Random.nextInt(2, 5)
+                    design.tags = designTags.shuffled().take(tagCount).joinToString(",")
+                    if (design.name.isBlank()) {
+                        design.name = designNames.random()
+                    }
+                }
+                designRepository.saveAll(designsWithoutTags)
+                println("✓ Backfilled tags on ${designsWithoutTags.size} existing designs")
+            }
+        }
     }
 
     // Invitation Card Data
     private val occasionCategories = listOf("WEDDING", "ENGAGEMENT", "MEHNDI", "RECEPTION")
+    private val invitationTags = listOf("WEDDING", "ENGAGEMENT", "MEHNDI", "RECEPTION", "ELEGANT", "TRADITIONAL", "MODERN", "FLORAL", "MINIMALIST", "LUXURY")
     private val paperTypes = listOf("MATTE", "GLOSSY", "TEXTURED", "HANDMADE", "RECYCLED")
     private val materials = listOf("CARDSTOCK", "COTTON", "VELVET", "ACRYLIC", "WOOD")
     private val printQualities = listOf("STANDARD", "PREMIUM", "LUXURY")
@@ -192,7 +220,8 @@ class DataSeeder {
             description = "Beautiful $name invitation card for your special $occasion celebration. Made with premium $material and $paperType finish.",
             isCustomizable = Random.nextBoolean(),
             minOrderQuantity = listOf(10, 25, 50, 100).random(),
-            numberOfOrders = Random.nextInt(0, 500)
+            numberOfOrders = Random.nextInt(0, 500),
+            tags = (listOf(occasion) + invitationTags.shuffled().take(Random.nextInt(1, 4))).distinct().joinToString(",")
         )
     }
 
