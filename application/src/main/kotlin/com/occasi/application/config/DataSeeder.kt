@@ -41,7 +41,7 @@ class DataSeeder {
         "Lucknow" to listOf("Hazratganj", "Gomti Nagar", "Aliganj", "Indira Nagar", "Mahanagar")
     )
 
-    private val designTags = listOf("BRIDAL", "WEDDING", "ARABIC", "TRADITIONAL", "MINIMAL", "PARTY", "FESTIVAL", "INDO-ARABIC", "FLORAL", "GEOMETRIC")
+    private val designTags = listOf("Bridal", "Wedding", "Arabic", "Traditional", "Minimal", "Party", "Festival", "Indo-Arabic", "Floral", "Geometric")
     private val complexities = listOf("Simple", "Mid", "Complex")
 
     private val designNames = listOf(
@@ -127,7 +127,7 @@ class DataSeeder {
 
     // Invitation Card Data
     private val occasionCategories = listOf("WEDDING", "ENGAGEMENT", "MEHNDI", "RECEPTION")
-    private val invitationTags = listOf("WEDDING", "ENGAGEMENT", "MEHNDI", "RECEPTION", "ELEGANT", "TRADITIONAL", "MODERN", "FLORAL", "MINIMALIST", "LUXURY")
+    private val invitationTags = listOf("Wedding", "Engagement", "Mehndi", "Reception", "Elegant", "Traditional", "Modern", "Floral", "Minimalist", "Luxury")
     private val paperTypes = listOf("MATTE", "GLOSSY", "TEXTURED", "HANDMADE", "RECYCLED")
     private val materials = listOf("CARDSTOCK", "COTTON", "VELVET", "ACRYLIC", "WOOD")
     private val printQualities = listOf("STANDARD", "PREMIUM", "LUXURY")
@@ -208,7 +208,6 @@ class DataSeeder {
         return InvitationCard(
             imageUrl = "https://picsum.photos/id/${200 + index}/400/500",
             price = price,
-            occasionCategory = occasion,
             priceRange = priceRange,
             width = width,
             height = height,

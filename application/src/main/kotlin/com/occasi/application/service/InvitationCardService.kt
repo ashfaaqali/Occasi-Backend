@@ -11,9 +11,6 @@ class InvitationCardService(private val repository: InvitationCardRepository) {
 
     fun getCardById(id: Long): InvitationCard? = repository.findById(id).orElse(null)
 
-    fun getCardsByOccasion(category: String): List<InvitationCard> =
-        repository.findByOccasionCategory(category.uppercase())
-
     fun getCardsByPriceRange(priceRange: String): List<InvitationCard> =
         repository.findByPriceRange(priceRange.uppercase())
 

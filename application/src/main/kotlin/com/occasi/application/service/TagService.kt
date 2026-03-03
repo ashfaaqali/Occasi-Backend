@@ -35,6 +35,6 @@ class TagService(
 
     private fun parseTags(raw: String): List<String> =
         raw.split(",")
-            .map { it.trim().uppercase() }
+            .map { it.trim() }
             .filter { it.isNotEmpty() }
 }

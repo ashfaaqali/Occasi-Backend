@@ -30,10 +30,6 @@ class InvitationCardController(private val service: InvitationCardService) {
         }
     }
 
-    @GetMapping("/occasion/{category}")
-    fun getByOccasion(@PathVariable category: String): List<InvitationCard> =
-        service.getCardsByOccasion(category)
-
     @GetMapping("/price-range/{range}")
     fun getByPriceRange(@PathVariable range: String): List<InvitationCard> =
         service.getCardsByPriceRange(range)

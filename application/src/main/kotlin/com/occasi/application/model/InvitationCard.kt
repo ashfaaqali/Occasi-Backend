@@ -9,7 +9,6 @@ data class InvitationCard(
 
     var imageUrl: String,
     var price: Int,
-    var occasionCategory: String,  // "WEDDING", "ENGAGEMENT", "MEHNDI", "RECEPTION"
     var priceRange: String,        // "UNDER_100", "RANGE_100_200", "ABOVE_200"
 
     // Card Physical Properties
