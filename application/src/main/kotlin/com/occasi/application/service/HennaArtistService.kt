@@ -9,6 +9,8 @@ class HennaArtistService(private val repository: HennaArtistRepository) {
 
     fun getAllHennaArtists(): List<HennaArtist> = repository.findAll()
 
+    fun getArtistById(id: Long): HennaArtist? = repository.findById(id).orElse(null)
+
     fun registerArtist(artist: HennaArtist): HennaArtist {
         // Ensure bidirectional relationship is set
         artist.designs.forEach { it.artist = artist }

@@ -2,6 +2,7 @@ package com.occasi.application.controller
 
 import com.occasi.application.model.HennaDesign
 import com.occasi.application.service.HennaDesignService
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
@@ -15,6 +16,16 @@ class HennaDesignController(private val service: HennaDesignService) {
             return service.getDesignsByPriceRange(minPrice, maxPrice)
         }
         return service.getAllDesigns()
+    }
+
+    @GetMapping("/{id}")
+    fun getDesignById(@PathVariable id: Long): ResponseEntity<Any> {
+        val design = service.getDesignById(id)
+        return if (design != null) {
+            ResponseEntity.ok(design)
+        } else {
+            ResponseEntity.status(404).body(mapOf("error" to "Design with id $id not found"))
+        }
     }
 
     @GetMapping("/complexity/{level}")

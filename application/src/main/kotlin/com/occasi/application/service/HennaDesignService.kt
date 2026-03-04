@@ -11,4 +11,6 @@ class HennaDesignService(private val repository: HennaDesignRepository) {
     fun getDesignsByPriceRange(min: Int, max: Int): List<HennaDesign> = repository.findByPriceBetween(min, max)
     
     fun getDesignsByComplexity(complexity: String): List<HennaDesign> = repository.findByComplexity(complexity)
+
+    fun getDesignById(id: Long): HennaDesign? = repository.findById(id).orElse(null)
 }
