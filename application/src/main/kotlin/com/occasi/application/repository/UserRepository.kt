@@ -8,4 +8,5 @@ import org.springframework.stereotype.Repository
 interface UserRepository : JpaRepository<User, Long> {
     fun findByEmail(email: String): User?
     fun findByMobileNumber(mobileNumber: String): User?
+    fun findByGoogleId(googleId: String): User?
 }
