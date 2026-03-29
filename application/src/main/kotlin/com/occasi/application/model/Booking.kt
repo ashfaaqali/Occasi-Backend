@@ -20,7 +20,35 @@ data class Booking(
     @JoinColumn(name = "design_id")
     var design: HennaDesign,
 
-    var status: String = "PENDING", // PENDING, CONFIRMED, COMPLETED, CANCELLED
+    var price: Int,
+
+    @Enumerated(EnumType.STRING)
+    var bookingStatus: BookingStatus = BookingStatus.PENDING,
+
+    @Enumerated(EnumType.STRING)
+    var paymentStatus: PaymentStatus = PaymentStatus.UNPAID,
+
+    @Enumerated(EnumType.STRING)
+    var paymentMethod: PaymentMethod = PaymentMethod.ONLINE,
+
+    var scheduledDateTime: LocalDateTime,
     var bookingDate: LocalDateTime = LocalDateTime.now(),
-    var price: Int
+
+    // Customer details (per-booking, may differ from User record)
+    var customerName: String,
+    var customerPhone: String,
+    var customerEmail: String = "",
+    var serviceAddress: String,
+
+    // Razorpay fields
+    var razorpayOrderId: String? = null,
+    var razorpayPaymentId: String? = null,
+
+    // Cancellation/refund fields
+    var refundAmount: Int? = null,
+    var refundId: String? = null,
+    var cancellationReason: String? = null,
+
+    @Enumerated(EnumType.STRING)
+    var cancelledBy: CancelledBy? = null
 )

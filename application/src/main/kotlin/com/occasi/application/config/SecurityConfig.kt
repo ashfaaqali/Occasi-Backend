@@ -29,6 +29,11 @@ class SecurityConfig {
                 auth
                     .requestMatchers("/auth/**").permitAll()
                     .requestMatchers("/h2-console/**").permitAll()
+                    .requestMatchers("/designs/**").permitAll()
+                    .requestMatchers("/invitation-cards/**").permitAll()
+                    .requestMatchers("/henna-artists/**").permitAll()
+                    .requestMatchers("/tags/**").permitAll()
+                    .requestMatchers("/users/**").permitAll()
                     .anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)

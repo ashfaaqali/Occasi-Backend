@@ -15,7 +15,6 @@ class OtpService(
     @Value("\${otp.expiry-minutes}") private val expiryMinutes: Long,
     @Value("\${otp.length}") private val otpLength: Int
 ) {
-
     @Transactional
     fun generateAndSend(phone: String): String {
         otpRecordRepository.deleteByPhone(phone)

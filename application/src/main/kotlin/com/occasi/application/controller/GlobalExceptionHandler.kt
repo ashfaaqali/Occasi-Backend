@@ -1,6 +1,7 @@
 package com.occasi.application.controller
 
 import com.occasi.application.dto.MessageResponse
+import com.occasi.application.exception.*
 import com.occasi.application.service.*
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -44,5 +45,43 @@ class GlobalExceptionHandler {
     fun handleInvalidRefreshToken(ex: InvalidRefreshTokenException): ResponseEntity<MessageResponse> {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
             .body(MessageResponse(message = ex.message ?: "Session expired"))
+    }
+
+    // Booking exceptions
+
+    @ExceptionHandler(BookingNotFoundException::class)
+    fun handleBookingNotFound(ex: BookingNotFoundException): ResponseEntity<MessageResponse> {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(MessageResponse(message = ex.message ?: "Booking not found"))
+    }
+
+    @ExceptionHandler(InvalidStatusTransitionException::class)
+    fun handleInvalidTransition(ex: InvalidStatusTransitionException): ResponseEntity<MessageResponse> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(MessageResponse(message = ex.message ?: "Invalid status transition"))
+    }
+
+    @ExceptionHandler(PaymentVerificationException::class)
+    fun handlePaymentVerification(ex: PaymentVerificationException): ResponseEntity<MessageResponse> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(MessageResponse(message = ex.message ?: "Payment verification failed"))
+    }
+
+    @ExceptionHandler(RefundFailedException::class)
+    fun handleRefundFailed(ex: RefundFailedException): ResponseEntity<MessageResponse> {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(MessageResponse(message = ex.message ?: "Failed to initiate refund"))
+    }
+
+    @ExceptionHandler(InvalidBookingRequestException::class)
+    fun handleInvalidBookingRequest(ex: InvalidBookingRequestException): ResponseEntity<MessageResponse> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(MessageResponse(message = ex.message ?: "Invalid booking request"))
+    }
+
+    @ExceptionHandler(RuntimeException::class)
+    fun handleRuntimeException(ex: RuntimeException): ResponseEntity<MessageResponse> {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+            .body(MessageResponse(message = ex.message ?: "An unexpected error occurred"))
     }
 }
