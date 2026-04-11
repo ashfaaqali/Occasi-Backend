@@ -1,8 +1,6 @@
 package com.occasi.application.config
 
 import com.occasi.application.model.*
-import com.occasi.application.repository.ArtistPricingRepository
-import com.occasi.application.repository.HennaArtistRepository
 import com.occasi.application.repository.HennaDesignRepository
 import com.occasi.application.repository.InvitationCardRepository
 import org.springframework.boot.CommandLineRunner
@@ -136,37 +134,6 @@ class DataSeeder {
     private val designTags = listOf("BRIDAL", "ARABIC", "INDIAN", "MOROCCAN", "MINIMALIST", "TRADITIONAL", "MODERN", "FLORAL", "GEOMETRIC", "FESTIVE")
     private val complexities = listOf("Simple", "Mid", "Complex", "Bridal")
 
-    // Henna Artist Data
-    private data class ArtistSeed(
-        val name: String,
-        val email: String,
-        val mobile: String,
-        val city: String,
-        val location: String,
-        val rating: Short,
-        val reviews: Int,
-        val coverImage: String,
-        val pricing: Map<ComplexityTier, Int>
-    )
-
-    private val artistSeeds = listOf(
-        ArtistSeed("Priya Sharma", "priya@occasi.com", "9876543210", "Mumbai", "Andheri West, Mumbai", 5, 120,
-            "https://images.unsplash.com/photo-1594744803329-e58b31239f85?w=400&h=400&fit=crop",
-            mapOf(ComplexityTier.SIMPLE to 350, ComplexityTier.MID to 900, ComplexityTier.COMPLEX to 2500, ComplexityTier.BRIDAL to 6000)),
-        ArtistSeed("Fatima Khan", "fatima@occasi.com", "9876543211", "Delhi", "Lajpat Nagar, Delhi", 5, 95,
-            "https://images.unsplash.com/photo-1583089892943-e02e5b017b6a?w=400&h=400&fit=crop",
-            mapOf(ComplexityTier.SIMPLE to 400, ComplexityTier.MID to 1000, ComplexityTier.COMPLEX to 2800, ComplexityTier.BRIDAL to 7000)),
-        ArtistSeed("Ananya Patel", "ananya@occasi.com", "9876543212", "Jaipur", "Malviya Nagar, Jaipur", 4, 78,
-            "https://images.unsplash.com/photo-1570172619684-9bfb2895e72d?w=400&h=400&fit=crop",
-            mapOf(ComplexityTier.SIMPLE to 300, ComplexityTier.MID to 800, ComplexityTier.COMPLEX to 2000, ComplexityTier.BRIDAL to 5000)),
-        ArtistSeed("Meera Reddy", "meera@occasi.com", "9876543213", "Hyderabad", "Banjara Hills, Hyderabad", 4, 62,
-            "https://images.unsplash.com/photo-1611516491426-03025e6043c8?w=400&h=400&fit=crop",
-            mapOf(ComplexityTier.SIMPLE to 450, ComplexityTier.MID to 1100, ComplexityTier.COMPLEX to 3000, ComplexityTier.BRIDAL to 7500)),
-        ArtistSeed("Zara Sheikh", "zara@occasi.com", "9876543214", "Lucknow", "Hazratganj, Lucknow", 5, 140,
-            "https://images.unsplash.com/photo-1596455607563-ad6193f76b17?w=400&h=400&fit=crop",
-            mapOf(ComplexityTier.SIMPLE to 500, ComplexityTier.MID to 1200, ComplexityTier.COMPLEX to 2800, ComplexityTier.BRIDAL to 8000))
-    )
-
     // Curated mehndi/henna image URLs from Unsplash
     private val mehndiImageUrls = listOf(
         "https://images.unsplash.com/photo-1595526051245-4506e0005bd0?w=400&h=500&fit=crop",
@@ -206,68 +173,13 @@ class DataSeeder {
     }
 
     @Bean
-    fun initDesignsAndArtists(
-        designRepository: HennaDesignRepository,
-        artistRepository: HennaArtistRepository,
-        artistPricingRepository: ArtistPricingRepository
+    fun initDesigns(
+        designRepository: HennaDesignRepository
     ) = CommandLineRunner {
         if (designRepository.count() > 0) return@CommandLineRunner
 
-        // 1. Seed artists
-        val savedArtists = if (artistRepository.count() == 0L) {
-            val artists = artistSeeds.map { seed ->
-                HennaArtist(
-                    name = seed.name,
-                    email = seed.email,
-                    mobileNumber = seed.mobile,
-                    cityName = seed.city,
-                    location = seed.location,
-                    rating = seed.rating,
-                    reviews = seed.reviews,
-                    coverImage = seed.coverImage
-                )
-            }
-            artistRepository.saveAll(artists).also {
-                println("✓ Seeded ${it.size} henna artists")
-            }
-        } else {
-            artistRepository.findAll()
-        }
-
-        // 2. Seed designs and link to artists (round-robin)
-        val designs = (0 until 30).map { index ->
-            val design = generateDesign(index)
-            design.artist = savedArtists[index % savedArtists.size]
-            design
-        }
+        val designs = (0 until 30).map { index -> generateDesign(index) }
         designRepository.saveAll(designs)
         println("✓ Seeded ${designs.size} henna designs")
-
-        // 3. Seed ArtistPricing rows for each artist
-        if (artistPricingRepository.count() == 0L) {
-            val pricingRows = savedArtists.flatMap { artist ->
-                val seed = artistSeeds.find { it.email == artist.email }
-                val pricing = seed?.pricing ?: mapOf(
-                    ComplexityTier.SIMPLE to 350,
-                    ComplexityTier.MID to 900,
-                    ComplexityTier.COMPLEX to 2500,
-                    ComplexityTier.BRIDAL to 6000
-                )
-                pricing.map { (tier, price) ->
-                    ArtistPricing(artist = artist, complexity = tier, price = price)
-                }
-            }
-            artistPricingRepository.saveAll(pricingRows)
-            println("✓ Seeded ${pricingRows.size} artist pricing rows")
-
-            // 4. Compute and set startingPrice on each artist
-            savedArtists.forEach { artist ->
-                val minPrice = artistPricingRepository.findByArtistId(artist.id!!)
-                    .minOfOrNull { it.price } ?: 0
-                artist.startingPrice = minPrice
-            }
-            artistRepository.saveAll(savedArtists)
-            println("✓ Updated starting prices for ${savedArtists.size} artists")
-        }
     }
 }
