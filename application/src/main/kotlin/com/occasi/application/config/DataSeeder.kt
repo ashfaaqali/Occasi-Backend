@@ -1,11 +1,10 @@
 package com.occasi.application.config
 
-import com.occasi.application.model.HennaArtist
-import com.occasi.application.model.HennaDesign
-import com.occasi.application.model.InvitationCard
+import com.occasi.application.model.*
+import com.occasi.application.repository.ArtistPricingRepository
 import com.occasi.application.repository.HennaArtistRepository
+import com.occasi.application.repository.HennaDesignRepository
 import com.occasi.application.repository.InvitationCardRepository
-import com.occasi.application.service.HennaArtistService
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
@@ -13,117 +12,6 @@ import kotlin.random.Random
 
 @Configuration
 class DataSeeder {
-
-    private val firstNames = listOf(
-        "Priya", "Zara", "Aisha", "Fatima", "Sana", "Noor", "Riya", "Amber", "Meera", "Kavya",
-        "Ananya", "Diya", "Isha", "Jiya", "Kiara", "Lavanya", "Myra", "Navya", "Oviya", "Pari",
-        "Rhea", "Saanvi", "Tara", "Uma", "Vanya", "Wafa", "Yashvi", "Zoya", "Aditi", "Bhavna",
-        "Chitra", "Deepa", "Ekta", "Farheen", "Gauri", "Hina", "Ira", "Jasmine", "Komal", "Lata",
-        "Madhuri", "Neha", "Pallavi", "Qurat", "Rashmi", "Sakshi", "Tanvi", "Urvashi", "Vidya", "Yamini"
-    )
-
-    private val studioSuffixes = listOf(
-        "Mehndi Art", "Henna Studio", "Henna Works", "Mehndi Magic", "Henna Creations",
-        "Mehndi Designs", "Henna House", "Mehndi Studio", "Henna Art", "Mehndi Palace",
-        "Henna Gallery", "Mehndi Corner", "Henna Touch", "Mehndi World", "Henna Dreams"
-    )
-
-    private val cities = listOf(
-        "Mumbai" to listOf("Bandra West", "Andheri", "Juhu", "Colaba", "Powai"),
-        "Delhi" to listOf("Connaught Place", "Hauz Khas", "Saket", "Dwarka", "Rohini"),
-        "Bangalore" to listOf("Koramangala", "Indiranagar", "Whitefield", "Jayanagar", "HSR Layout"),
-        "Hyderabad" to listOf("Banjara Hills", "Jubilee Hills", "Hitech City", "Gachibowli", "Madhapur"),
-        "Pune" to listOf("Koregaon Park", "Viman Nagar", "Kothrud", "Aundh", "Hinjewadi"),
-        "Chennai" to listOf("T Nagar", "Anna Nagar", "Adyar", "Velachery", "Nungambakkam"),
-        "Kolkata" to listOf("Park Street", "Salt Lake", "New Town", "Ballygunge", "Alipore"),
-        "Jaipur" to listOf("MI Road", "C Scheme", "Vaishali Nagar", "Malviya Nagar", "Raja Park"),
-        "Ahmedabad" to listOf("Navrangpura", "Satellite", "Prahlad Nagar", "Bodakdev", "SG Highway"),
-        "Lucknow" to listOf("Hazratganj", "Gomti Nagar", "Aliganj", "Indira Nagar", "Mahanagar")
-    )
-
-    private val designTags = listOf("Bridal", "Wedding", "Arabic", "Traditional", "Minimal", "Party", "Festival", "Indo-Arabic", "Floral", "Geometric")
-    private val complexities = listOf("Simple", "Mid", "Complex")
-
-    private val designNames = listOf(
-        "Royal Bridal", "Elegant Paisley", "Floral Vine", "Arabic Swirl", "Mandala Dream",
-        "Classic Henna", "Modern Minimal", "Festive Bloom", "Traditional Charm", "Geometric Art",
-        "Bridal Bliss", "Sunset Henna", "Delicate Lace", "Bold Strokes", "Garden Path",
-        "Peacock Feather", "Lotus Pattern", "Mughal Inspired", "Rajasthani Beauty", "Celtic Knot"
-    )
-
-    private fun generateDesigns(artistIndex: Int, count: Int): List<HennaDesign> {
-        return (1..count).map { designIndex ->
-            val complexity = complexities.random()
-            val tagCount = Random.nextInt(2, 5)
-            val tags = designTags.shuffled().take(tagCount).joinToString(",")
-            val name = designNames[(artistIndex * 10 + designIndex) % designNames.size]
-            val price = when (complexity) {
-                "Simple" -> Random.nextInt(300, 600)
-                "Mid" -> Random.nextInt(600, 1200)
-                else -> Random.nextInt(1200, 3500)
-            }
-            val imageId = (artistIndex * 10) + designIndex + 100
-            HennaDesign(
-                imageUrl = "https://picsum.photos/id/$imageId/300/300",
-                name = name,
-                price = price,
-                complexity = complexity,
-                tags = tags
-            )
-        }
-    }
-
-    private fun generateArtist(index: Int): HennaArtist {
-        val firstName = firstNames[index % firstNames.size]
-        val suffix = studioSuffixes[index % studioSuffixes.size]
-        val (city, locations) = cities[index % cities.size]
-        val location = locations[index % locations.size]
-
-        val artist = HennaArtist(
-            name = "$firstName's $suffix",
-            email = "${firstName.lowercase()}${index}@example.com",
-            mobileNumber = "9${Random.nextInt(100000000, 999999999)}",
-            cityName = city,
-            location = location,
-            rating = (3..5).random().toShort(),
-            reviews = Random.nextInt(20, 200),
-            coverImage = "https://picsum.photos/id/${index + 10}/400/300"
-        )
-
-        val designCount = Random.nextInt(1, 4) // 1-3 designs per artist to reach ~200 total
-        val designs = generateDesigns(index, designCount)
-        designs.forEach { it.artist = artist }
-        artist.designs = designs
-
-        return artist
-    }
-
-    @Bean
-    fun initDatabase(
-        repository: HennaArtistRepository,
-        artistService: HennaArtistService,
-        designRepository: com.occasi.application.repository.HennaDesignRepository
-    ) = CommandLineRunner {
-        if (repository.count() == 0L) {
-            val artists = (1..100).map { generateArtist(it) }
-            artists.forEach { artistService.registerArtist(it) }
-            println("✓ Seeded ${artists.size} artists with ${artists.sumOf { it.designs.size }} designs")
-        } else {
-            // Backfill tags on existing designs that have empty tags
-            val designsWithoutTags = designRepository.findAll().filter { it.tags.isBlank() }
-            if (designsWithoutTags.isNotEmpty()) {
-                designsWithoutTags.forEach { design ->
-                    val tagCount = kotlin.random.Random.nextInt(2, 5)
-                    design.tags = designTags.shuffled().take(tagCount).joinToString(",")
-                    if (design.name.isBlank()) {
-                        design.name = designNames.random()
-                    }
-                }
-                designRepository.saveAll(designsWithoutTags)
-                println("✓ Backfilled tags on ${designsWithoutTags.size} existing designs")
-            }
-        }
-    }
 
     // Invitation Card Data
     private val occasionCategories = listOf("WEDDING", "ENGAGEMENT", "MEHNDI", "RECEPTION")
@@ -231,5 +119,155 @@ class DataSeeder {
         val cards = (1..60).map { generateInvitationCard(it) }
         repository.saveAll(cards)
         println("✓ Seeded ${cards.size} invitation cards")
+    }
+
+    // Henna Design Data
+    private val designNames = listOf(
+        "Bridal Full Hand", "Arabic Vine", "Peacock Motif", "Mandala Circle",
+        "Floral Trail", "Rajasthani Royal", "Moroccan Lattice", "Lotus Bloom",
+        "Paisley Cascade", "Mughal Jali", "Finger Tip Elegance", "Back Hand Swirl",
+        "Dulhan Special", "Minimalist Leaf", "Indo-Arabic Fusion", "Tikki Round",
+        "Bail Pattern", "Elephant Motif", "Jaali Net", "Rose Garden",
+        "Butterfly Wings", "Geometric Modern", "Traditional Bangle", "Wrist Cuff",
+        "Feet Anklet Design", "Palm Chakra", "Shoulder Drape", "Arm Band",
+        "Festive Diwali", "Eid Crescent"
+    )
+
+    private val designTags = listOf("BRIDAL", "ARABIC", "INDIAN", "MOROCCAN", "MINIMALIST", "TRADITIONAL", "MODERN", "FLORAL", "GEOMETRIC", "FESTIVE")
+    private val complexities = listOf("Simple", "Mid", "Complex", "Bridal")
+
+    // Henna Artist Data
+    private data class ArtistSeed(
+        val name: String,
+        val email: String,
+        val mobile: String,
+        val city: String,
+        val location: String,
+        val rating: Short,
+        val reviews: Int,
+        val coverImage: String,
+        val pricing: Map<ComplexityTier, Int>
+    )
+
+    private val artistSeeds = listOf(
+        ArtistSeed("Priya Sharma", "priya@occasi.com", "9876543210", "Mumbai", "Andheri West, Mumbai", 5, 120,
+            "https://images.unsplash.com/photo-1594744803329-e58b31239f85?w=400&h=400&fit=crop",
+            mapOf(ComplexityTier.SIMPLE to 350, ComplexityTier.MID to 900, ComplexityTier.COMPLEX to 2500, ComplexityTier.BRIDAL to 6000)),
+        ArtistSeed("Fatima Khan", "fatima@occasi.com", "9876543211", "Delhi", "Lajpat Nagar, Delhi", 5, 95,
+            "https://images.unsplash.com/photo-1583089892943-e02e5b017b6a?w=400&h=400&fit=crop",
+            mapOf(ComplexityTier.SIMPLE to 400, ComplexityTier.MID to 1000, ComplexityTier.COMPLEX to 2800, ComplexityTier.BRIDAL to 7000)),
+        ArtistSeed("Ananya Patel", "ananya@occasi.com", "9876543212", "Jaipur", "Malviya Nagar, Jaipur", 4, 78,
+            "https://images.unsplash.com/photo-1570172619684-9bfb2895e72d?w=400&h=400&fit=crop",
+            mapOf(ComplexityTier.SIMPLE to 300, ComplexityTier.MID to 800, ComplexityTier.COMPLEX to 2000, ComplexityTier.BRIDAL to 5000)),
+        ArtistSeed("Meera Reddy", "meera@occasi.com", "9876543213", "Hyderabad", "Banjara Hills, Hyderabad", 4, 62,
+            "https://images.unsplash.com/photo-1611516491426-03025e6043c8?w=400&h=400&fit=crop",
+            mapOf(ComplexityTier.SIMPLE to 450, ComplexityTier.MID to 1100, ComplexityTier.COMPLEX to 3000, ComplexityTier.BRIDAL to 7500)),
+        ArtistSeed("Zara Sheikh", "zara@occasi.com", "9876543214", "Lucknow", "Hazratganj, Lucknow", 5, 140,
+            "https://images.unsplash.com/photo-1596455607563-ad6193f76b17?w=400&h=400&fit=crop",
+            mapOf(ComplexityTier.SIMPLE to 500, ComplexityTier.MID to 1200, ComplexityTier.COMPLEX to 2800, ComplexityTier.BRIDAL to 8000))
+    )
+
+    // Curated mehndi/henna image URLs from Unsplash
+    private val mehndiImageUrls = listOf(
+        "https://images.unsplash.com/photo-1595526051245-4506e0005bd0?w=400&h=500&fit=crop",
+        "https://images.unsplash.com/photo-1600003014755-ba31aa59c4b6?w=400&h=500&fit=crop",
+        "https://images.unsplash.com/photo-1591122947157-26bad3a117d2?w=400&h=500&fit=crop",
+        "https://images.unsplash.com/photo-1609682698530-ef1e442a9449?w=400&h=500&fit=crop",
+        "https://images.unsplash.com/photo-1615196534498-d1b1f1c88b3a?w=400&h=500&fit=crop",
+        "https://images.unsplash.com/photo-1583089892943-e02e5b017b6a?w=400&h=500&fit=crop",
+        "https://images.unsplash.com/photo-1570172619684-9bfb2895e72d?w=400&h=500&fit=crop",
+        "https://images.unsplash.com/photo-1611516491426-03025e6043c8?w=400&h=500&fit=crop",
+        "https://images.unsplash.com/photo-1596455607563-ad6193f76b17?w=400&h=500&fit=crop",
+        "https://images.unsplash.com/photo-1617201929338-c0e4c1a8e3b5?w=400&h=500&fit=crop"
+    )
+
+    private fun generateDesign(index: Int): HennaDesign {
+        val name = designNames[index % designNames.size]
+        val complexity = complexities[index % complexities.size]
+        val price = when (complexity) {
+            "Simple" -> Random.nextInt(200, 500)
+            "Mid" -> Random.nextInt(500, 1500)
+            "Complex" -> Random.nextInt(1500, 5000)
+            else -> Random.nextInt(300, 1000)
+        }
+        val tagCount = Random.nextInt(2, 5)
+        val tags = designTags.shuffled().take(tagCount).joinToString(",")
+        val imageUrl = mehndiImageUrls[index % mehndiImageUrls.size]
+
+        return HennaDesign(
+            imageUrl = imageUrl,
+            name = name,
+            price = price,
+            complexity = complexity,
+            tags = tags,
+            likes = Random.nextInt(0, 300),
+            numberOfPeopleBooked = Random.nextInt(0, 150)
+        )
+    }
+
+    @Bean
+    fun initDesignsAndArtists(
+        designRepository: HennaDesignRepository,
+        artistRepository: HennaArtistRepository,
+        artistPricingRepository: ArtistPricingRepository
+    ) = CommandLineRunner {
+        if (designRepository.count() > 0) return@CommandLineRunner
+
+        // 1. Seed artists
+        val savedArtists = if (artistRepository.count() == 0L) {
+            val artists = artistSeeds.map { seed ->
+                HennaArtist(
+                    name = seed.name,
+                    email = seed.email,
+                    mobileNumber = seed.mobile,
+                    cityName = seed.city,
+                    location = seed.location,
+                    rating = seed.rating,
+                    reviews = seed.reviews,
+                    coverImage = seed.coverImage
+                )
+            }
+            artistRepository.saveAll(artists).also {
+                println("✓ Seeded ${it.size} henna artists")
+            }
+        } else {
+            artistRepository.findAll()
+        }
+
+        // 2. Seed designs and link to artists (round-robin)
+        val designs = (0 until 30).map { index ->
+            val design = generateDesign(index)
+            design.artist = savedArtists[index % savedArtists.size]
+            design
+        }
+        designRepository.saveAll(designs)
+        println("✓ Seeded ${designs.size} henna designs")
+
+        // 3. Seed ArtistPricing rows for each artist
+        if (artistPricingRepository.count() == 0L) {
+            val pricingRows = savedArtists.flatMap { artist ->
+                val seed = artistSeeds.find { it.email == artist.email }
+                val pricing = seed?.pricing ?: mapOf(
+                    ComplexityTier.SIMPLE to 350,
+                    ComplexityTier.MID to 900,
+                    ComplexityTier.COMPLEX to 2500,
+                    ComplexityTier.BRIDAL to 6000
+                )
+                pricing.map { (tier, price) ->
+                    ArtistPricing(artist = artist, complexity = tier, price = price)
+                }
+            }
+            artistPricingRepository.saveAll(pricingRows)
+            println("✓ Seeded ${pricingRows.size} artist pricing rows")
+
+            // 4. Compute and set startingPrice on each artist
+            savedArtists.forEach { artist ->
+                val minPrice = artistPricingRepository.findByArtistId(artist.id!!)
+                    .minOfOrNull { it.price } ?: 0
+                artist.startingPrice = minPrice
+            }
+            artistRepository.saveAll(savedArtists)
+            println("✓ Updated starting prices for ${savedArtists.size} artists")
+        }
     }
 }

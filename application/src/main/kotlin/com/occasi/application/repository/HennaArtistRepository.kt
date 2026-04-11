@@ -5,4 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.stereotype.Repository
 
 @Repository
-interface HennaArtistRepository : JpaRepository<HennaArtist, Long>
+interface HennaArtistRepository : JpaRepository<HennaArtist, Long> {
+    fun findByEmail(email: String): HennaArtist?
+}

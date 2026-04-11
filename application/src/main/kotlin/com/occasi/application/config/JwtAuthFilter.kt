@@ -17,7 +17,7 @@ class JwtAuthFilter(
 
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
         val path = request.servletPath
-        return path.startsWith("/auth/") || path.startsWith("/h2-console/")
+        return path.startsWith("/auth/") || path.startsWith("/artist-auth/") || path.startsWith("/h2-console/")
     }
 
     override fun doFilterInternal(
@@ -32,15 +32,30 @@ class JwtAuthFilter(
             val claims = jwtService.validateToken(token)
 
             if (claims != null) {
-                val userId = claims["userId"]?.let { (it as Number).toLong() }
-                val role = claims["role"] as? String
+                val tokenType = claims["type"] as? String
 
-                if (userId != null && role != null) {
-                    val authorities = listOf(SimpleGrantedAuthority("ROLE_$role"))
-                    val authentication = UsernamePasswordAuthenticationToken(
-                        userId, null, authorities
-                    )
-                    SecurityContextHolder.getContext().authentication = authentication
+                if (tokenType == "artist") {
+                    // Artist JWT — extract artistId, grant ROLE_ARTIST
+                    val artistId = claims["artistId"]?.let { (it as Number).toLong() }
+                    if (artistId != null) {
+                        val authorities = listOf(SimpleGrantedAuthority("ROLE_ARTIST"))
+                        val authentication = UsernamePasswordAuthenticationToken(
+                            artistId, null, authorities
+                        )
+                        SecurityContextHolder.getContext().authentication = authentication
+                    }
+                } else {
+                    // Customer JWT — extract userId and role
+                    val userId = claims["userId"]?.let { (it as Number).toLong() }
+                    val role = claims["role"] as? String
+
+                    if (userId != null && role != null) {
+                        val authorities = listOf(SimpleGrantedAuthority("ROLE_$role"))
+                        val authentication = UsernamePasswordAuthenticationToken(
+                            userId, null, authorities
+                        )
+                        SecurityContextHolder.getContext().authentication = authentication
+                    }
                 }
             }
         }

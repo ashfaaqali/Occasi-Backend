@@ -1,13 +1,16 @@
 package com.occasi.application.service
 
+import com.occasi.application.model.HennaArtist
 import com.occasi.application.model.User
 import com.occasi.application.model.UserRole
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.longs.shouldBeBetween
+import io.kotest.matchers.nulls.shouldBeNull
 import io.kotest.matchers.nulls.shouldNotBeNull
 import io.kotest.matchers.shouldBe
 import io.kotest.matchers.string.shouldNotBeEmpty
 import io.kotest.property.Arb
+import io.kotest.property.PropTestConfig
 import io.kotest.property.arbitrary.enum
 import io.kotest.property.arbitrary.long
 import io.kotest.property.arbitrary.string
@@ -89,6 +92,51 @@ class JwtServicePropertyTest : StringSpec({
             val expectedMin = beforeMs + refreshTokenExpiryMs - 1000
             val expectedMax = afterMs + refreshTokenExpiryMs + 1000
             expiry.shouldBeBetween(expectedMin, expectedMax)
+        }
+    }
+
+    // Feature: artist-dashboard-panel, Property 2: Artist JWT token claims contain artistId and type
+    // Validates: Requirements 3.7
+    "artist access token contains artistId and type claims, no userId or role, and is verifiable" {
+        checkAll(
+            PropTestConfig(minSuccess = 100),
+            Arb.long(1L..1_000_000L),
+            Arb.string(1..50),
+            Arb.string(1..50),
+            Arb.string(5..15)
+        ) { artistId, name, email, mobile ->
+            val artist = HennaArtist(
+                id = artistId,
+                name = name,
+                email = email,
+                mobileNumber = mobile,
+                cityName = "TestCity",
+                location = "TestLocation"
+            )
+
+            val accessToken = jwtService.generateArtistAccessToken(artist)
+            accessToken.shouldNotBeEmpty()
+
+            // (a) Token is verifiable using the same HMAC-SHA256 signing key
+            val claims = jwtService.validateToken(accessToken)
+            claims.shouldNotBeNull()
+
+            // (b) Contains artistId claim matching the artist's ID
+            claims["artistId"].shouldNotBeNull()
+            (claims["artistId"] as Number).toLong() shouldBe artistId
+
+            // (c) Contains type claim equal to "artist"
+            claims["type"] shouldBe "artist"
+
+            // (d) Does NOT contain userId or role claims
+            claims["userId"].shouldBeNull()
+            claims["role"].shouldBeNull()
+
+            // (e) getArtistIdFromToken helper returns the correct ID
+            jwtService.getArtistIdFromToken(accessToken) shouldBe artistId
+
+            // (f) getTokenType helper returns "artist"
+            jwtService.getTokenType(accessToken) shouldBe "artist"
         }
     }
 })

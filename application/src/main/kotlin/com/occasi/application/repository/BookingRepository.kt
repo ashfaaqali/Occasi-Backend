@@ -9,4 +9,5 @@ interface BookingRepository : JpaRepository<Booking, Long> {
     fun findByUserId(userId: Long): List<Booking>
     fun findByArtistId(artistId: Long): List<Booking>
     fun findByUserIdOrderByScheduledDateTimeDesc(userId: Long): List<Booking>
+    fun findByArtistIdOrderByScheduledDateTimeDesc(artistId: Long): List<Booking>
 }

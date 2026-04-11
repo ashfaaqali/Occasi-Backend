@@ -6,6 +6,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.config.http.SessionCreationPolicy
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.HttpStatusEntryPoint
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
@@ -13,6 +14,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @Configuration
 @EnableWebSecurity
 class SecurityConfig {
+
+    @Bean
+    fun passwordEncoder(): BCryptPasswordEncoder = BCryptPasswordEncoder()
 
     @Bean
     fun securityFilterChain(http: HttpSecurity, jwtAuthFilter: JwtAuthFilter): SecurityFilterChain {
@@ -28,12 +32,15 @@ class SecurityConfig {
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers("/auth/**").permitAll()
+                    .requestMatchers("/artist-auth/**").permitAll()
                     .requestMatchers("/h2-console/**").permitAll()
                     .requestMatchers("/designs/**").permitAll()
                     .requestMatchers("/invitation-cards/**").permitAll()
                     .requestMatchers("/henna-artists/**").permitAll()
                     .requestMatchers("/tags/**").permitAll()
                     .requestMatchers("/users/**").permitAll()
+                    .requestMatchers("/uploads/**").permitAll()
+                    .requestMatchers("/images/**").permitAll()
                     .anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)

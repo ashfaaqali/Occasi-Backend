@@ -134,15 +134,15 @@ class AuthControllerTest : StringSpec() {
         // Validates: Requirements 7.3
         "Property 14: protected endpoints return 401 without token and succeed with valid token" {
             checkAll(20, validPhoneArb) { phone ->
-                // Without token: should get 401
-                mockMvc.perform(get("/designs"))
+                val (user, accessToken, _) = createUserWithRefreshToken(phone)
+
+                // Without token: should get 401 on a protected endpoint
+                mockMvc.perform(get("/bookings/user/${user.id}"))
                     .andExpect(status().isUnauthorized)
 
                 // With valid token: should NOT get 401
-                val (_, accessToken, _) = createUserWithRefreshToken(phone)
-
                 mockMvc.perform(
-                    get("/designs")
+                    get("/bookings/user/${user.id}")
                         .header("Authorization", "Bearer $accessToken")
                 )
                     .andExpect(status().isOk)

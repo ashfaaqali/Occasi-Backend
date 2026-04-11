@@ -1,5 +1,6 @@
 package com.occasi.application.model
 
+import com.fasterxml.jackson.annotation.JsonManagedReference
 import jakarta.persistence.*
 
 @Entity
@@ -14,10 +15,21 @@ data class HennaArtist(
     var location: String,
     var rating: Short = 0,
     var reviews: Int = 0,
+    @Lob
+    @Column(columnDefinition = "TEXT")
     var coverImage: String? = null,
-    var startingPrice: Int = 0
+    var startingPrice: Int = 0,
+    var passwordHash: String? = null
 ) {
     @OneToMany(mappedBy = "artist", cascade = [CascadeType.ALL])
-    @com.fasterxml.jackson.annotation.JsonManagedReference
+    @JsonManagedReference
     var designs: List<HennaDesign> = ArrayList()
+
+    @OneToMany(mappedBy = "artist", cascade = [CascadeType.ALL])
+    @JsonManagedReference("artist-portfolio")
+    var portfolioImages: List<ArtistPortfolioImage> = ArrayList()
+
+    @OneToMany(mappedBy = "artist", cascade = [CascadeType.ALL])
+    @JsonManagedReference("artist-pricing")
+    var pricingTiers: List<ArtistPricing> = ArrayList()
 }

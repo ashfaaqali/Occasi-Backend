@@ -4,10 +4,12 @@ import com.occasi.application.dto.BookingResponse
 import com.occasi.application.dto.CreateBookingRequest
 import com.occasi.application.exception.*
 import com.occasi.application.model.*
+import com.occasi.application.repository.ArtistPricingRepository
 import com.occasi.application.repository.BookingRepository
 import com.occasi.application.repository.HennaArtistRepository
 import com.occasi.application.repository.HennaDesignRepository
 import com.occasi.application.repository.UserRepository
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -18,9 +20,23 @@ class BookingService(
     private val userRepository: UserRepository,
     private val artistRepository: HennaArtistRepository,
     private val designRepository: HennaDesignRepository,
+    private val artistPricingRepository: ArtistPricingRepository,
     private val razorpayService: RazorpayService,
     private val cancellationEngine: CancellationEngine
 ) {
+
+    private val logger = LoggerFactory.getLogger(BookingService::class.java)
+
+    fun resolveBookingPrice(artistId: Long, designId: Long): Int {
+        val design = designRepository.findById(designId)
+            .orElseThrow { BookingNotFoundException("Design not found") }
+        val complexityTier = ComplexityTier.valueOf(design.complexity.uppercase())
+        val artistPricing = artistPricingRepository.findByArtistIdAndComplexity(artistId, complexityTier)
+        return artistPricing?.price ?: run {
+            logger.warn("No ArtistPricing found for artist $artistId, complexity $complexityTier. Falling back to design.price")
+            design.price
+        }
+    }
 
     fun createBooking(request: CreateBookingRequest): BookingResponse {
         // Validate required fields
@@ -40,11 +56,13 @@ class BookingService(
         val scheduledDateTime = LocalDateTime.parse(request.scheduledDateTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         val paymentMethod = PaymentMethod.valueOf(request.paymentMethod)
 
+        val resolvedPrice = resolveBookingPrice(request.artistId, request.designId)
+
         val booking = Booking(
             user = user,
             artist = artist,
             design = design,
-            price = design.price,
+            price = resolvedPrice,
             bookingStatus = if (paymentMethod == PaymentMethod.PAY_AFTER_SERVICE) BookingStatus.CONFIRMED else BookingStatus.PENDING,
             paymentStatus = if (paymentMethod == PaymentMethod.PAY_AFTER_SERVICE) PaymentStatus.PAY_AFTER_SERVICE else PaymentStatus.UNPAID,
             paymentMethod = paymentMethod,
@@ -59,7 +77,7 @@ class BookingService(
         // Create Razorpay order for online payments
         if (paymentMethod == PaymentMethod.ONLINE) {
             try {
-                val orderId = razorpayService.createOrder(design.price * 100, 0)
+                val orderId = razorpayService.createOrder(resolvedPrice * 100, 0)
                 booking.razorpayOrderId = orderId
             } catch (e: Exception) {
                 throw RuntimeException("Failed to create payment order. Please try again or choose Pay After Service.", e)
@@ -144,6 +162,13 @@ class BookingService(
 
     fun getBookingsByUser(userId: Long): List<BookingResponse> {
         return bookingRepository.findByUserIdOrderByScheduledDateTimeDesc(userId)
+            .map { toBookingResponse(it) }
+    }
+
+    fun getBookingsByArtist(artistId: Long): List<BookingResponse> {
+        artistRepository.findById(artistId)
+            .orElseThrow { ArtistNotFoundException("Artist not found") }
+        return bookingRepository.findByArtistIdOrderByScheduledDateTimeDesc(artistId)
             .map { toBookingResponse(it) }
     }
 

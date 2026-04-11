@@ -62,4 +62,10 @@ class BookingController(private val bookingService: BookingService) {
         val response = bookingService.getBookingsByUser(userId)
         return ResponseEntity.ok(response)
     }
+
+    @GetMapping("/artist/{artistId}")
+    fun getArtistBookings(@PathVariable artistId: Long): ResponseEntity<List<BookingResponse>> {
+        val response = bookingService.getBookingsByArtist(artistId)
+        return ResponseEntity.ok(response)
+    }
 }

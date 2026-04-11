@@ -3,6 +3,7 @@ package com.occasi.application.service
 import com.occasi.application.dto.CreateBookingRequest
 import com.occasi.application.exception.*
 import com.occasi.application.model.*
+import com.occasi.application.repository.ArtistPricingRepository
 import com.occasi.application.repository.BookingRepository
 import com.occasi.application.repository.HennaArtistRepository
 import com.occasi.application.repository.HennaDesignRepository
@@ -43,9 +44,10 @@ class BookingServicePropertyTest : StringSpec({
         userRepo: UserRepository = mock(),
         artistRepo: HennaArtistRepository = mock(),
         designRepo: HennaDesignRepository = mock(),
+        artistPricingRepo: ArtistPricingRepository = mock(),
         razorpayService: RazorpayService = mock(),
         cancellationEngine: CancellationEngine = mock()
-    ) = BookingService(bookingRepo, userRepo, artistRepo, designRepo, razorpayService, cancellationEngine)
+    ) = BookingService(bookingRepo, userRepo, artistRepo, designRepo, artistPricingRepo, razorpayService, cancellationEngine)
 
     // Arb generators
     val arbNonBlank = Arb.string(1..30).filter { it.isNotBlank() }
@@ -80,7 +82,7 @@ class BookingServicePropertyTest : StringSpec({
                 b
             }.whenever(bookingRepo).save(any())
 
-            val service = buildService(bookingRepo, userRepo, artistRepo, designRepo, razorpayService)
+            val service = buildService(bookingRepo, userRepo, artistRepo, designRepo, razorpayService = razorpayService)
             val request = CreateBookingRequest(
                 userId = 1L, artistId = 1L, designId = 1L,
                 scheduledDateTime = dateTime, customerName = name,
@@ -145,7 +147,7 @@ class BookingServicePropertyTest : StringSpec({
                 b
             }.whenever(bookingRepo).save(any())
 
-            val service = buildService(bookingRepo, userRepo, artistRepo, designRepo, razorpayService)
+            val service = buildService(bookingRepo, userRepo, artistRepo, designRepo, razorpayService = razorpayService)
             val request = CreateBookingRequest(
                 userId = 1L, artistId = 1L, designId = 1L,
                 scheduledDateTime = dateTime, customerName = name,
@@ -187,7 +189,7 @@ class BookingServicePropertyTest : StringSpec({
                 b
             }.whenever(bookingRepo).save(any())
 
-            val service = buildService(bookingRepo, userRepo, artistRepo, designRepo, razorpayService)
+            val service = buildService(bookingRepo, userRepo, artistRepo, designRepo, razorpayService = razorpayService)
             val request = CreateBookingRequest(
                 userId = 1L, artistId = 1L, designId = 1L,
                 scheduledDateTime = dateTime, customerName = name,

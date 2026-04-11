@@ -47,6 +47,32 @@ class GlobalExceptionHandler {
             .body(MessageResponse(message = ex.message ?: "Session expired"))
     }
 
+    // Artist exceptions
+
+    @ExceptionHandler(ArtistNotFoundException::class)
+    fun handleArtistNotFound(ex: ArtistNotFoundException): ResponseEntity<MessageResponse> {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(MessageResponse(message = ex.message ?: "Artist not found"))
+    }
+
+    @ExceptionHandler(DuplicateArtistEmailException::class)
+    fun handleDuplicateArtistEmail(ex: DuplicateArtistEmailException): ResponseEntity<MessageResponse> {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+            .body(MessageResponse(message = ex.message ?: "An artist with this email already exists"))
+    }
+
+    @ExceptionHandler(InvalidArtistCredentialsException::class)
+    fun handleInvalidArtistCredentials(ex: InvalidArtistCredentialsException): ResponseEntity<MessageResponse> {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(MessageResponse(message = ex.message ?: "Invalid email or password"))
+    }
+
+    @ExceptionHandler(InvalidArtistRefreshTokenException::class)
+    fun handleInvalidArtistRefreshToken(ex: InvalidArtistRefreshTokenException): ResponseEntity<MessageResponse> {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+            .body(MessageResponse(message = ex.message ?: "Session expired. Please log in again."))
+    }
+
     // Booking exceptions
 
     @ExceptionHandler(BookingNotFoundException::class)

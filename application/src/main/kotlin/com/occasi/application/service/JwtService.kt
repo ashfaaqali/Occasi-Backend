@@ -1,5 +1,6 @@
 package com.occasi.application.service
 
+import com.occasi.application.model.HennaArtist
 import com.occasi.application.model.User
 import io.jsonwebtoken.Claims
 import io.jsonwebtoken.Jwts
@@ -62,5 +63,38 @@ class JwtService(
     fun getRoleFromToken(token: String): String? {
         val claims = validateToken(token) ?: return null
         return claims["role"] as? String
+    }
+
+    fun generateArtistAccessToken(artist: HennaArtist): String {
+        val now = Date()
+        return Jwts.builder()
+            .subject(artist.id.toString())
+            .claim("artistId", artist.id)
+            .claim("type", "artist")
+            .issuedAt(now)
+            .expiration(Date(now.time + accessTokenExpiry))
+            .signWith(signingKey)
+            .compact()
+    }
+
+    fun generateArtistRefreshToken(artist: HennaArtist): String {
+        val now = Date()
+        return Jwts.builder()
+            .subject(artist.id.toString())
+            .claim("type", "artist")
+            .issuedAt(now)
+            .expiration(Date(now.time + refreshTokenExpiry))
+            .signWith(signingKey)
+            .compact()
+    }
+
+    fun getArtistIdFromToken(token: String): Long? {
+        val claims = validateToken(token) ?: return null
+        return claims["artistId"]?.let { (it as Number).toLong() }
+    }
+
+    fun getTokenType(token: String): String? {
+        val claims = validateToken(token) ?: return null
+        return claims["type"] as? String
     }
 }

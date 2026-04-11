@@ -23,7 +23,7 @@ data class HennaDesign(
 
     init {
         require(name.isNotBlank()) { "Design name must not be empty" }
-        require(complexity in listOf("Simple", "Mid", "Complex")) { "Complexity must be Simple, Mid, or Complex" }
+        require(complexity in listOf("Simple", "Mid", "Complex", "Bridal")) { "Complexity must be Simple, Mid, Complex, or Bridal" }
         require(tags.isNotBlank()) { "Tags must not be empty" }
         tags.split(",").forEach { tag ->
             require(tag.trim().isNotEmpty()) { "Each tag must be non-empty after trimming" }

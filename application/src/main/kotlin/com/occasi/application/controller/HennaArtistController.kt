@@ -1,6 +1,6 @@
 package com.occasi.application.controller
 
-import com.occasi.application.model.HennaArtist
+import com.occasi.application.dto.ArtistRegistrationRequest
 import com.occasi.application.service.HennaArtistService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -10,7 +10,17 @@ import org.springframework.web.bind.annotation.*
 class HennaArtistController(private val service: HennaArtistService) {
 
     @GetMapping
-    fun getAllHennaArtists() = service.getAllHennaArtists()
+    fun getAllHennaArtists(@RequestParam complexity: String?): ResponseEntity<Any> {
+        return if (complexity != null) {
+            try {
+                ResponseEntity.ok(service.getArtistsForComplexity(complexity))
+            } catch (e: IllegalArgumentException) {
+                ResponseEntity.badRequest().body(mapOf("error" to "Invalid complexity tier: $complexity"))
+            }
+        } else {
+            ResponseEntity.ok(service.getAllHennaArtists())
+        }
+    }
 
     @GetMapping("/{id}")
     fun getArtistById(@PathVariable id: Long): ResponseEntity<Any> {
@@ -23,5 +33,11 @@ class HennaArtistController(private val service: HennaArtistService) {
     }
 
     @PostMapping
-    fun registerArtist(@RequestBody artist: HennaArtist) = service.registerArtist(artist)
+    fun registerArtist(@RequestBody request: ArtistRegistrationRequest): ResponseEntity<Any> {
+        if (request.name.isBlank() || request.email.isBlank() || request.mobileNumber.isBlank()) {
+            return ResponseEntity.badRequest().body(mapOf("error" to "Name, email, and mobile number are required"))
+        }
+        val artist = service.registerArtist(request)
+        return ResponseEntity.status(201).body(artist)
+    }
 }
