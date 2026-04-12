@@ -100,7 +100,7 @@ class PriceResolutionPropertyTest : StringSpec() {
         )
     }
 
-    private fun createDesign(artist: HennaArtist, name: String, price: Int, complexity: String, tags: String): HennaDesign {
+    private fun createDesign(name: String, price: Int, complexity: String, tags: String): HennaDesign {
         val design = HennaDesign(
             imageUrl = "http://img.png",
             name = name,
@@ -108,7 +108,6 @@ class PriceResolutionPropertyTest : StringSpec() {
             complexity = complexity,
             tags = tags
         )
-        design.artist = artist
         return hennaDesignRepository.saveAndFlush(design)
     }
 
@@ -123,7 +122,7 @@ class PriceResolutionPropertyTest : StringSpec() {
                 nameArb, emailArb, mobileArb, nameArb, designPriceArb, complexityArb, tagsArb, priceArb
             ) { artistName, email, mobile, designName, designPrice, complexity, tags, artistPrice ->
                 val artist = createArtist(artistName, email, mobile)
-                val design = createDesign(artist, designName, designPrice, complexity, tags)
+                val design = createDesign(designName, designPrice, complexity, tags)
 
                 val tier = ComplexityTier.valueOf(complexity.uppercase())
                 val pricing = ArtistPricing(
@@ -148,7 +147,7 @@ class PriceResolutionPropertyTest : StringSpec() {
                 nameArb, emailArb, mobileArb, nameArb, designPriceArb, complexityArb, tagsArb
             ) { artistName, email, mobile, designName, designPrice, complexity, tags ->
                 val artist = createArtist(artistName, email, mobile)
-                val design = createDesign(artist, designName, designPrice, complexity, tags)
+                val design = createDesign(designName, designPrice, complexity, tags)
 
                 // Do NOT create any ArtistPricing row
 

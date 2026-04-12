@@ -1,7 +1,6 @@
 package com.occasi.application.model
 
 import jakarta.persistence.*
-import com.fasterxml.jackson.annotation.JsonBackReference
 
 @Entity
 data class HennaDesign(
@@ -16,11 +15,6 @@ data class HennaDesign(
     var likes: Int = 0,
     var numberOfPeopleBooked: Int = 0
 ) {
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "artist_id")
-    @JsonBackReference
-    var artist: HennaArtist? = null
-
     init {
         require(name.isNotBlank()) { "Design name must not be empty" }
         require(complexity in listOf("Simple", "Mid", "Complex", "Bridal")) { "Complexity must be Simple, Mid, Complex, or Bridal" }

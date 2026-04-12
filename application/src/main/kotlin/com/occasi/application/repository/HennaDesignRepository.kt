@@ -8,5 +8,4 @@ import org.springframework.stereotype.Repository
 interface HennaDesignRepository : JpaRepository<HennaDesign, Long> {
     fun findByPriceBetween(minPrice: Int, maxPrice: Int): List<HennaDesign>
     fun findByComplexity(complexity: String): List<HennaDesign>
-    fun findByArtistId(artistId: Long): List<HennaDesign>
 }

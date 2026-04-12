@@ -33,10 +33,8 @@ class BookingServicePropertyTest : StringSpec({
         mobileNumber = "0987654321", cityName = "Mumbai", location = "Andheri"
     )
 
-    fun makeDesign(price: Int, artistEntity: HennaArtist? = null): HennaDesign {
-        val design = HennaDesign(id = 1L, imageUrl = "http://img.png", name = "Bridal", price = price, complexity = "Simple", tags = "BRIDAL")
-        design.artist = artistEntity
-        return design
+    fun makeDesign(price: Int): HennaDesign {
+        return HennaDesign(id = 1L, imageUrl = "http://img.png", name = "Bridal", price = price, complexity = "Simple", tags = "BRIDAL")
     }
 
     fun buildService(
@@ -69,7 +67,7 @@ class BookingServicePropertyTest : StringSpec({
 
             val user = makeUser()
             val artist = makeArtist()
-            val design = makeDesign(price, artist)
+            val design = makeDesign(price)
 
             whenever(userRepo.findById(1L)).thenReturn(Optional.of(user))
             whenever(artistRepo.findById(1L)).thenReturn(Optional.of(artist))
@@ -135,7 +133,7 @@ class BookingServicePropertyTest : StringSpec({
 
             val user = makeUser()
             val artist = makeArtist()
-            val design = makeDesign(price, artist)
+            val design = makeDesign(price)
 
             whenever(userRepo.findById(1L)).thenReturn(Optional.of(user))
             whenever(artistRepo.findById(1L)).thenReturn(Optional.of(artist))
@@ -176,7 +174,7 @@ class BookingServicePropertyTest : StringSpec({
 
             val user = makeUser()
             val artist = makeArtist()
-            val design = makeDesign(price, artist)
+            val design = makeDesign(price)
 
             whenever(userRepo.findById(1L)).thenReturn(Optional.of(user))
             whenever(artistRepo.findById(1L)).thenReturn(Optional.of(artist))
@@ -214,7 +212,7 @@ class BookingServicePropertyTest : StringSpec({
 
             val user = makeUser()
             val artist = makeArtist()
-            val design = makeDesign(500, artist)
+            val design = makeDesign(500)
             val booking = Booking(
                 id = 1L, user = user, artist = artist, design = design, price = 500,
                 bookingStatus = BookingStatus.PENDING, paymentStatus = PaymentStatus.UNPAID,
@@ -243,7 +241,7 @@ class BookingServicePropertyTest : StringSpec({
 
             val user = makeUser()
             val artist = makeArtist()
-            val design = makeDesign(500, artist)
+            val design = makeDesign(500)
             val booking = Booking(
                 id = 1L, user = user, artist = artist, design = design, price = 500,
                 bookingStatus = BookingStatus.PENDING, paymentStatus = PaymentStatus.UNPAID,
@@ -279,7 +277,7 @@ class BookingServicePropertyTest : StringSpec({
 
             val user = makeUser()
             val artist = makeArtist()
-            val design = makeDesign(price, artist)
+            val design = makeDesign(price)
             val booking = Booking(
                 id = 1L, user = user, artist = artist, design = design, price = price,
                 bookingStatus = status, paymentStatus = PaymentStatus.UNPAID,
@@ -316,7 +314,7 @@ class BookingServicePropertyTest : StringSpec({
 
             val user = makeUser()
             val artist = makeArtist()
-            val design = makeDesign(price, artist)
+            val design = makeDesign(price)
             val booking = Booking(
                 id = 1L, user = user, artist = artist, design = design, price = price,
                 bookingStatus = BookingStatus.CONFIRMED,
@@ -350,7 +348,7 @@ class BookingServicePropertyTest : StringSpec({
 
             val user = makeUser()
             val artist = makeArtist()
-            val design = makeDesign(price, artist)
+            val design = makeDesign(price)
             val booking = Booking(
                 id = 1L, user = user, artist = artist, design = design, price = price,
                 bookingStatus = BookingStatus.CONFIRMED,

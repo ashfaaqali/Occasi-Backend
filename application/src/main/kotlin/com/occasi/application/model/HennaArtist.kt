@@ -22,10 +22,6 @@ data class HennaArtist(
     var passwordHash: String? = null
 ) {
     @OneToMany(mappedBy = "artist", cascade = [CascadeType.ALL])
-    @JsonManagedReference
-    var designs: List<HennaDesign> = ArrayList()
-
-    @OneToMany(mappedBy = "artist", cascade = [CascadeType.ALL])
     @JsonManagedReference("artist-portfolio")
     var portfolioImages: List<ArtistPortfolioImage> = ArrayList()
 

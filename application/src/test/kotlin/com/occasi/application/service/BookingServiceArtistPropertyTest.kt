@@ -111,7 +111,7 @@ class BookingServiceArtistPropertyTest : StringSpec() {
     /**
      * Helper: create a HennaDesign for an artist and persist it.
      */
-    private fun createDesign(artist: HennaArtist): HennaDesign {
+    private fun createDesign(): HennaDesign {
         val design = HennaDesign(
             imageUrl = "http://img.png",
             name = "Design${System.nanoTime()}",
@@ -119,7 +119,6 @@ class BookingServiceArtistPropertyTest : StringSpec() {
             complexity = "Simple",
             tags = "BRIDAL"
         )
-        design.artist = artist
         return hennaDesignRepository.saveAndFlush(design)
     }
 
@@ -166,8 +165,8 @@ class BookingServiceArtistPropertyTest : StringSpec() {
 
                 // Create a shared user and designs
                 val user = createUser("Customer", "cust_$email1", "9$mobile1".take(10))
-                val design1 = createDesign(artist1)
-                val design2 = createDesign(artist2)
+                val design1 = createDesign()
+                val design2 = createDesign()
 
                 // Create bookings for artist1
                 val baseTime = LocalDateTime.now().plusDays(1)
@@ -209,7 +208,7 @@ class BookingServiceArtistPropertyTest : StringSpec() {
             ) { name, email, mobile, count ->
                 val artist = createArtist(name, email, mobile)
                 val user = createUser("Customer", "cust_$email", "9$mobile".take(10))
-                val design = createDesign(artist)
+                val design = createDesign()
 
                 // Create bookings with varying scheduled times (not in order)
                 val baseTime = LocalDateTime.now().plusDays(1)
