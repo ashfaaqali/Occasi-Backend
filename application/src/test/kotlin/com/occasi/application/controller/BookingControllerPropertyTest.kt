@@ -1,5 +1,6 @@
 package com.occasi.application.controller
 
+import com.occasi.application.config.TestFirebaseConfig
 import com.occasi.application.service.GoogleAuthService
 import com.occasi.application.service.GoogleUserInfo
 import com.occasi.application.service.JwtService
@@ -14,6 +15,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Primary
 import org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user
 import org.springframework.test.web.servlet.MockMvc
@@ -24,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional
 
 // Feature: artist-dashboard-panel, Property 18
 @SpringBootTest
+@Import(TestFirebaseConfig::class)
 @AutoConfigureMockMvc
 @Transactional
 class BookingControllerPropertyTest : StringSpec() {

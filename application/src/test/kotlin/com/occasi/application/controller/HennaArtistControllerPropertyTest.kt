@@ -1,5 +1,6 @@
 package com.occasi.application.controller
 
+import com.occasi.application.config.TestFirebaseConfig
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.extensions.spring.SpringExtension
 import io.kotest.property.Arb
@@ -8,6 +9,7 @@ import io.kotest.property.checkAll
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
 import org.springframework.test.web.servlet.post
@@ -16,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional
 
 // Feature: artist-onboarding-dashboard, Property 6: Missing required fields return 400
 @SpringBootTest
+@Import(TestFirebaseConfig::class)
 @AutoConfigureMockMvc
 @Transactional
 class HennaArtistControllerPropertyTest : StringSpec() {

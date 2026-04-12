@@ -1,5 +1,6 @@
 package com.occasi.application.service
 
+import com.occasi.application.config.TestFirebaseConfig
 import com.occasi.application.model.User
 import com.occasi.application.model.UserRole
 import com.occasi.application.repository.OtpRecordRepository
@@ -22,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Primary
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
@@ -29,6 +31,7 @@ import java.time.temporal.ChronoUnit
 
 // Feature: authentication-security, Properties 2, 3, 4, 5, 7
 @SpringBootTest
+@Import(TestFirebaseConfig::class)
 @Transactional
 class AuthServicePropertyTest : StringSpec() {
 

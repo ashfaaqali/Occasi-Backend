@@ -1,5 +1,6 @@
 package com.occasi.application.service
 
+import com.occasi.application.config.TestFirebaseConfig
 import com.occasi.application.dto.ArtistRegisterRequest
 import com.occasi.application.exception.DuplicateArtistEmailException
 import com.occasi.application.exception.InvalidArtistCredentialsException
@@ -19,12 +20,14 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Primary
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.transaction.annotation.Transactional
 
 // Feature: artist-dashboard-panel, Properties 1, 7, 8
 @SpringBootTest
+@Import(TestFirebaseConfig::class)
 @Transactional
 class ArtistAuthServicePropertyTest : StringSpec() {
 

@@ -40,7 +40,7 @@ class SecurityConfig {
                     .requestMatchers("/tags/**").permitAll()
                     .requestMatchers("/users/**").permitAll()
                     .requestMatchers("/uploads/**").permitAll()
-                    .requestMatchers("/images/**").permitAll()
+                    .requestMatchers("/api/images/**").authenticated()
                     .anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)

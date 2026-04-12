@@ -1,5 +1,6 @@
 package com.occasi.application.service
 
+import com.occasi.application.config.TestFirebaseConfig
 import com.occasi.application.model.OtpRecord
 import com.occasi.application.repository.OtpRecordRepository
 import org.junit.jupiter.api.Assertions.*
@@ -7,10 +8,12 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 @SpringBootTest
+@Import(TestFirebaseConfig::class)
 @Transactional
 class OtpServiceTest {
 

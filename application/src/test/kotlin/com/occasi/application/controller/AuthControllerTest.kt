@@ -1,5 +1,6 @@
 package com.occasi.application.controller
 
+import com.occasi.application.config.TestFirebaseConfig
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.occasi.application.dto.LogoutRequest
 import com.occasi.application.dto.RefreshTokenRequest
@@ -24,6 +25,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Primary
 import org.springframework.http.MediaType
 import org.springframework.test.web.servlet.MockMvc
@@ -36,6 +38,7 @@ import java.time.LocalDateTime
 
 // Feature: authentication-security, Properties 9, 14, 15, 16
 @SpringBootTest
+@Import(TestFirebaseConfig::class)
 @AutoConfigureMockMvc
 @Transactional
 class AuthControllerTest : StringSpec() {

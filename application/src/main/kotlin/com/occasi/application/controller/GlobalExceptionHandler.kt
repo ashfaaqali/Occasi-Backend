@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
+import org.springframework.web.multipart.MaxUploadSizeExceededException
 
 @RestControllerAdvice
 class GlobalExceptionHandler {
@@ -103,6 +104,14 @@ class GlobalExceptionHandler {
     fun handleInvalidBookingRequest(ex: InvalidBookingRequestException): ResponseEntity<MessageResponse> {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
             .body(MessageResponse(message = ex.message ?: "Invalid booking request"))
+    }
+
+    // Image upload exceptions
+
+    @ExceptionHandler(MaxUploadSizeExceededException::class)
+    fun handleMaxUploadSizeExceeded(ex: MaxUploadSizeExceededException): ResponseEntity<Map<String, String>> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(mapOf("error" to "File size exceeds the 5 MB limit"))
     }
 
     @ExceptionHandler(RuntimeException::class)

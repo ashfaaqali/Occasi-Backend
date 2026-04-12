@@ -1,5 +1,6 @@
 package com.occasi.application.model
 
+import com.occasi.application.config.TestFirebaseConfig
 import com.occasi.application.repository.ArtistPricingRepository
 import com.occasi.application.repository.HennaArtistRepository
 import com.occasi.application.service.GoogleAuthService
@@ -16,11 +17,13 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Primary
 import org.springframework.transaction.annotation.Transactional
 
 // Feature: pricing-booking-overhaul, Property 5
 @SpringBootTest
+@Import(TestFirebaseConfig::class)
 @Transactional
 @OptIn(io.kotest.common.ExperimentalKotest::class)
 class ArtistPricingPropertyTest : StringSpec() {

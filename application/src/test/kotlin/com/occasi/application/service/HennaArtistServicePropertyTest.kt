@@ -1,5 +1,6 @@
 package com.occasi.application.service
 
+import com.occasi.application.config.TestFirebaseConfig
 import com.occasi.application.dto.ArtistRegistrationRequest
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.collections.shouldContainExactlyInAnyOrder
@@ -12,12 +13,14 @@ import io.kotest.property.checkAll
 import io.kotest.extensions.spring.SpringExtension
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.context.annotation.Import
 import org.springframework.transaction.annotation.Transactional
 
 // Feature: artist-onboarding-dashboard, Property 5: Artist registration round-trip
 // Feature: artist-onboarding-dashboard, Property 7: Default values for optional fields
 // Feature: artist-onboarding-dashboard, Property 4: Portfolio images excluded from design catalog
 @SpringBootTest
+@Import(TestFirebaseConfig::class)
 @Transactional
 class HennaArtistServicePropertyTest : StringSpec() {
 

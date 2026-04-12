@@ -1,5 +1,6 @@
 package com.occasi.application.service
 
+import com.occasi.application.config.TestFirebaseConfig
 import com.occasi.application.dto.ArtistRegisterRequest
 import com.occasi.application.model.ComplexityTier
 import com.occasi.application.repository.ArtistPricingRepository
@@ -17,10 +18,12 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Primary
 import org.springframework.transaction.annotation.Transactional
 
 @SpringBootTest
+@Import(TestFirebaseConfig::class)
 @Transactional
 @OptIn(io.kotest.common.ExperimentalKotest::class)
 class ArtistRegistrationPropertyTest : StringSpec() {

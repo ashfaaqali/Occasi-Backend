@@ -1,5 +1,6 @@
 package com.occasi.application.service
 
+import com.occasi.application.config.TestFirebaseConfig
 import com.occasi.application.model.*
 import com.occasi.application.repository.BookingRepository
 import com.occasi.application.repository.HennaArtistRepository
@@ -18,12 +19,14 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
+import org.springframework.context.annotation.Import
 import org.springframework.context.annotation.Primary
 import org.springframework.transaction.annotation.Transactional
 import java.time.LocalDateTime
 
 // Feature: artist-dashboard-panel, Properties 13, 14
 @SpringBootTest
+@Import(TestFirebaseConfig::class)
 @Transactional
 class BookingServiceArtistPropertyTest : StringSpec() {
 
