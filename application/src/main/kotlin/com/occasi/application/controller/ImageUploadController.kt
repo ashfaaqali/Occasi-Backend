@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile
 
 @RestController
 @RequestMapping("/api/images")
+@org.springframework.boot.autoconfigure.condition.ConditionalOnBean(FirebaseStorageService::class)
 class ImageUploadController(private val firebaseStorageService: FirebaseStorageService) {
 
     companion object {
