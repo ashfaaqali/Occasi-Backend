@@ -6,8 +6,6 @@ import org.springframework.stereotype.Repository
 
 @Repository
 interface InvitationCardRepository : JpaRepository<InvitationCard, Long> {
-    fun findByPriceRange(priceRange: String): List<InvitationCard>
-    fun findByPriceBetween(minPrice: Int, maxPrice: Int): List<InvitationCard>
     fun findByMaterial(material: String): List<InvitationCard>
-    fun findByPaperType(paperType: String): List<InvitationCard>
+    fun findByFinish(finish: String): List<InvitationCard>
 }

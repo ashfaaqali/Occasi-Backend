@@ -46,6 +46,28 @@ class AuthService(
         return generateAuthResponse(user)
     }
 
+    /**
+     * Verify OTP for phone number only — does NOT create a user or session.
+     * Used for adding a phone number to an existing profile.
+     */
+    fun verifyPhoneOnly(phone: String, otp: String) {
+        if (!phone.matches(Regex("^\\d{10}$"))) {
+            throw InvalidPhoneException("Phone number must be exactly 10 digits")
+        }
+        otpService.verify(phone, otp)
+    }
+
+    fun sendEmailOtp(email: String): String {
+        if (!email.matches(Regex("^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$"))) {
+            throw RuntimeException("Invalid email address")
+        }
+        return otpService.generateAndSendEmail(email)
+    }
+
+    fun verifyEmailOnly(email: String, otp: String) {
+        otpService.verify(email, otp)
+    }
+
     @Transactional
     fun googleSignIn(idToken: String): AuthResponse {
         val googleUserInfo = googleAuthService.verifyIdToken(idToken)

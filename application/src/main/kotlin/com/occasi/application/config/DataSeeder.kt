@@ -14,9 +14,10 @@ class DataSeeder {
     // Invitation Card Data
     private val occasionCategories = listOf("WEDDING", "ENGAGEMENT", "MEHNDI", "RECEPTION")
     private val invitationTags = listOf("Wedding", "Engagement", "Mehndi", "Reception", "Elegant", "Traditional", "Modern", "Floral", "Minimalist", "Luxury")
-    private val paperTypes = listOf("MATTE", "GLOSSY", "TEXTURED", "HANDMADE", "RECYCLED")
+    private val finishes = listOf("MATTE", "GLOSSY", "TEXTURED", "EMBOSSED", "FOIL_STAMPED")
+    private val printTypes = listOf("DIGITAL", "OFFSET", "SCREEN_PRINT", "LETTERPRESS")
     private val materials = listOf("CARDSTOCK", "COTTON", "VELVET", "ACRYLIC", "WOOD")
-    private val printQualities = listOf("STANDARD", "PREMIUM", "LUXURY")
+    private val sizes = listOf("5×7 inches", "6×9 inches", "4×6 inches")
 
     private val cardNames = mapOf(
         "WEDDING" to listOf(
@@ -37,22 +38,16 @@ class DataSeeder {
         )
     )
 
-    private fun getPriceRange(price: Int): String {
-        return when {
-            price < 100 -> "UNDER_100"
-            price <= 200 -> "RANGE_100_200"
-            else -> "ABOVE_200"
-        }
-    }
-
     private fun generateInvitationCard(index: Int): InvitationCard {
         val occasion = occasionCategories[index % occasionCategories.size]
-        val paperType = paperTypes.random()
         val material = materials.random()
-        val printQuality = printQualities.random()
+        val finish = finishes.random()
+        val printType = printTypes.random()
+        // All cards offer all available sizes
+        val availableSizes = sizes.joinToString(",")
 
-        // Price based on material and print quality
-        val basePrice = when (material) {
+        // Price based on material
+        val price = when (material) {
             "CARDSTOCK" -> Random.nextInt(50, 100)
             "COTTON" -> Random.nextInt(80, 150)
             "VELVET" -> Random.nextInt(150, 250)
@@ -61,52 +56,32 @@ class DataSeeder {
             else -> Random.nextInt(50, 150)
         }
 
-        val qualityMultiplier = when (printQuality) {
-            "STANDARD" -> 1.0
-            "PREMIUM" -> 1.3
-            "LUXURY" -> 1.6
-            else -> 1.0
-        }
-
-        val price = (basePrice * qualityMultiplier).toInt()
-        val priceRange = getPriceRange(price)
-
         val names = cardNames[occasion] ?: listOf("Beautiful Card")
         val name = names[index % names.size]
 
-        // Standard card dimensions (in inches)
-        val dimensions = listOf(
-            5.0 to 7.0,   // Standard
-            4.0 to 6.0,   // Compact
-            5.5 to 8.5,   // Large
-            4.25 to 5.5   // A2 size
-        )
-        val (width, height) = dimensions.random()
-
-        val paperWeight = when (paperType) {
+        val paperWeight = when (finish) {
             "MATTE", "GLOSSY" -> listOf(250, 300, 350).random()
             "TEXTURED" -> listOf(280, 320, 380).random()
-            "HANDMADE" -> listOf(200, 250, 300).random()
-            "RECYCLED" -> listOf(220, 270, 320).random()
+            "EMBOSSED" -> listOf(300, 350, 400).random()
+            "FOIL_STAMPED" -> listOf(320, 370, 420).random()
             else -> 300
         }
 
         return InvitationCard(
             imageUrl = "https://picsum.photos/id/${200 + index}/400/500",
             price = price,
-            priceRange = priceRange,
-            width = width,
-            height = height,
-            paperType = paperType,
-            paperWeight = paperWeight,
+            finish = finish,
+            printType = printType,
+            size = availableSizes,
             material = material,
-            printQuality = printQuality,
+            paperWeight = paperWeight,
             name = name,
-            description = "Beautiful $name invitation card for your special $occasion celebration. Made with premium $material and $paperType finish.",
-            isCustomizable = Random.nextBoolean(),
+            description = "Beautiful $name invitation card for your special $occasion celebration. Made with premium $material and $finish finish.",
             minOrderQuantity = listOf(10, 25, 50, 100).random(),
             numberOfOrders = Random.nextInt(0, 500),
-            tags = (listOf(occasion) + invitationTags.shuffled().take(Random.nextInt(1, 4))).distinct().joinToString(",")
+            tags = (listOf(occasion) + invitationTags.shuffled().take(Random.nextInt(1, 4))).distinct().joinToString(","),
+            averageRating = 0.0,
+            reviewCount = 0
         )
     }
 

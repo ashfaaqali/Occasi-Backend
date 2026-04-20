@@ -106,6 +106,52 @@ class GlobalExceptionHandler {
             .body(MessageResponse(message = ex.message ?: "Invalid booking request"))
     }
 
+    // Card order exceptions
+
+    @ExceptionHandler(CardOrderNotFoundException::class)
+    fun handleCardOrderNotFound(ex: CardOrderNotFoundException): ResponseEntity<MessageResponse> {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+            .body(MessageResponse(message = ex.message ?: "Card order not found"))
+    }
+
+    @ExceptionHandler(DuplicateSampleOrderException::class)
+    fun handleDuplicateSampleOrder(ex: DuplicateSampleOrderException): ResponseEntity<MessageResponse> {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+            .body(MessageResponse(message = ex.message ?: "Duplicate sample order"))
+    }
+
+    @ExceptionHandler(InvalidOrderQuantityException::class)
+    fun handleInvalidOrderQuantity(ex: InvalidOrderQuantityException): ResponseEntity<MessageResponse> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(MessageResponse(message = ex.message ?: "Invalid order quantity"))
+    }
+
+    @ExceptionHandler(InvalidOrderStatusTransitionException::class)
+    fun handleInvalidOrderStatusTransition(ex: InvalidOrderStatusTransitionException): ResponseEntity<MessageResponse> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(MessageResponse(message = ex.message ?: "Invalid order status transition"))
+    }
+
+    // Card review exceptions
+
+    @ExceptionHandler(ReviewNotEligibleException::class)
+    fun handleReviewNotEligible(ex: ReviewNotEligibleException): ResponseEntity<MessageResponse> {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN)
+            .body(MessageResponse(message = ex.message ?: "Not eligible to review this card"))
+    }
+
+    @ExceptionHandler(DuplicateReviewException::class)
+    fun handleDuplicateReview(ex: DuplicateReviewException): ResponseEntity<MessageResponse> {
+        return ResponseEntity.status(HttpStatus.CONFLICT)
+            .body(MessageResponse(message = ex.message ?: "A review already exists for this order"))
+    }
+
+    @ExceptionHandler(InvalidRatingException::class)
+    fun handleInvalidRating(ex: InvalidRatingException): ResponseEntity<MessageResponse> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(MessageResponse(message = ex.message ?: "Invalid rating value"))
+    }
+
     // Image upload exceptions
 
     @ExceptionHandler(MaxUploadSizeExceededException::class)

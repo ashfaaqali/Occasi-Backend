@@ -6,24 +6,18 @@ import jakarta.persistence.*
 data class InvitationCard(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
-
-    var imageUrl: String,
-    var price: Int,
-    var priceRange: String,        // "UNDER_100", "RANGE_100_200", "ABOVE_200"
-
-    // Card Physical Properties
-    var width: Double,             // Width in inches
-    var height: Double,            // Height in inches
-    var paperType: String,         // "MATTE", "GLOSSY", "TEXTURED", "HANDMADE", "RECYCLED"
-    var paperWeight: Int,          // GSM (grams per square meter)
-    var material: String,          // "CARDSTOCK", "COTTON", "VELVET", "ACRYLIC", "WOOD"
-    var printQuality: String,      // "STANDARD", "PREMIUM", "LUXURY"
-
-    // Additional Details
     var name: String,
     var description: String? = null,
-    var isCustomizable: Boolean = false,
+    var imageUrl: String,
+    var price: Int,
+    var finish: String,                // MATTE, GLOSSY, TEXTURED, EMBOSSED, FOIL_STAMPED
+    var printType: String,             // DIGITAL, OFFSET, SCREEN_PRINT, LETTERPRESS
+    var size: String,                  // comma-separated available sizes e.g. "5×7 inches,6×9 inches,4×6 inches"
+    var material: String,              // CARDSTOCK, COTTON, VELVET, ACRYLIC, WOOD
+    var paperWeight: Int,              // GSM
     var minOrderQuantity: Int = 1,
+    var tags: String = "",             // comma-separated
     var numberOfOrders: Int = 0,
-    var tags: String = ""            // Comma-separated tags e.g. "WEDDING,ELEGANT,TRADITIONAL"
+    var averageRating: Double = 0.0,   // 0.0–5.0
+    var reviewCount: Int = 0
 )

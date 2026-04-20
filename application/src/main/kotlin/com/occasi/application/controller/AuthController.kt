@@ -21,6 +21,24 @@ class AuthController(private val authService: AuthService) {
         return ResponseEntity.ok(authResponse)
     }
 
+    @PostMapping("/verify-phone")
+    fun verifyPhone(@RequestBody request: VerifyOtpRequest): ResponseEntity<MessageResponse> {
+        authService.verifyPhoneOnly(request.phone, request.otp)
+        return ResponseEntity.ok(MessageResponse(message = "Phone verified"))
+    }
+
+    @PostMapping("/send-email-otp")
+    fun sendEmailOtp(@RequestBody request: SendEmailOtpRequest): ResponseEntity<MessageResponse> {
+        authService.sendEmailOtp(request.email)
+        return ResponseEntity.ok(MessageResponse(message = "OTP sent to email"))
+    }
+
+    @PostMapping("/verify-email")
+    fun verifyEmail(@RequestBody request: VerifyEmailOtpRequest): ResponseEntity<MessageResponse> {
+        authService.verifyEmailOnly(request.email, request.otp)
+        return ResponseEntity.ok(MessageResponse(message = "Email verified"))
+    }
+
     @PostMapping("/google")
     fun googleSignIn(@RequestBody request: GoogleSignInRequest): ResponseEntity<AuthResponse> {
         val authResponse = authService.googleSignIn(request.idToken)

@@ -12,28 +12,32 @@ import kotlin.random.Random
 class OtpService(
     private val otpRecordRepository: OtpRecordRepository,
     private val otpProvider: OtpProvider,
+    private val emailOtpProvider: EmailOtpProvider,
     @Value("\${otp.expiry-minutes}") private val expiryMinutes: Long,
     @Value("\${otp.length}") private val otpLength: Int
 ) {
     @Transactional
     fun generateAndSend(phone: String): String {
         otpRecordRepository.deleteByPhone(phone)
-
         val otp = generateOtp()
         val expiresAt = LocalDateTime.now().plusMinutes(expiryMinutes)
-
-        val otpRecord = OtpRecord(
-            phone = phone,
-            otp = otp,
-            expiresAt = expiresAt
-        )
-        otpRecordRepository.save(otpRecord)
-
-        val sent = otpProvider.sendOtp(phone, otp)
-        if (!sent) {
+        otpRecordRepository.save(OtpRecord(phone = phone, otp = otp, expiresAt = expiresAt))
+        if (!otpProvider.sendOtp(phone, otp)) {
             throw OtpSendFailedException("Unable to send OTP. Please try again later.")
         }
+        return otp
+    }
 
+    @Transactional
+    fun generateAndSendEmail(email: String): String {
+        // Reuse the phone column to store email — it's just a string identifier
+        otpRecordRepository.deleteByPhone(email)
+        val otp = generateOtp()
+        val expiresAt = LocalDateTime.now().plusMinutes(expiryMinutes)
+        otpRecordRepository.save(OtpRecord(phone = email, otp = otp, expiresAt = expiresAt))
+        if (!emailOtpProvider.sendOtp(email, otp)) {
+            throw OtpSendFailedException("Unable to send OTP to email. Please try again later.")
+        }
         return otp
     }
 

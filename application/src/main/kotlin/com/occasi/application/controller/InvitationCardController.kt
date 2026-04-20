@@ -11,11 +11,14 @@ class InvitationCardController(private val service: InvitationCardService) {
 
     @GetMapping
     fun getAllCards(
-        @RequestParam(required = false) minPrice: Int?,
-        @RequestParam(required = false) maxPrice: Int?
+        @RequestParam(required = false) material: String?,
+        @RequestParam(required = false) finish: String?
     ): List<InvitationCard> {
-        if (minPrice != null && maxPrice != null) {
-            return service.getCardsByPriceBetween(minPrice, maxPrice)
+        if (material != null) {
+            return service.getCardsByMaterial(material)
+        }
+        if (finish != null) {
+            return service.getCardsByFinish(finish)
         }
         return service.getAllCards()
     }
@@ -29,16 +32,4 @@ class InvitationCardController(private val service: InvitationCardService) {
             ResponseEntity.notFound().build()
         }
     }
-
-    @GetMapping("/price-range/{range}")
-    fun getByPriceRange(@PathVariable range: String): List<InvitationCard> =
-        service.getCardsByPriceRange(range)
-
-    @GetMapping("/material/{material}")
-    fun getByMaterial(@PathVariable material: String): List<InvitationCard> =
-        service.getCardsByMaterial(material)
-
-    @GetMapping("/paper-type/{paperType}")
-    fun getByPaperType(@PathVariable paperType: String): List<InvitationCard> =
-        service.getCardsByPaperType(paperType)
 }

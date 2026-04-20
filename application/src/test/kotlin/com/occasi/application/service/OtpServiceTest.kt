@@ -24,6 +24,10 @@ class OtpServiceTest {
         override fun sendOtp(phone: String, otp: String): Boolean = true
     }
 
+    private val dummyEmailProvider = object : EmailOtpProvider {
+        override fun sendOtp(email: String, otp: String): Boolean = true
+    }
+
     @BeforeEach
     fun setUp() {
         otpRecordRepository.deleteAll()
@@ -31,7 +35,7 @@ class OtpServiceTest {
 
     @Test
     fun `generateAndSend creates a 6-digit OTP and stores it`() {
-        val service = OtpService(otpRecordRepository, successProvider, 5L, 6)
+        val service = OtpService(otpRecordRepository, successProvider, dummyEmailProvider, 5L, 6)
         val otp = service.generateAndSend("1234567890")
 
         assertTrue(otp.matches(Regex("^\\d{6}$")))
@@ -41,7 +45,7 @@ class OtpServiceTest {
 
     @Test
     fun `generateAndSend deletes previous OTPs for the same phone`() {
-        val service = OtpService(otpRecordRepository, successProvider, 5L, 6)
+        val service = OtpService(otpRecordRepository, successProvider, dummyEmailProvider, 5L, 6)
 
         val firstOtp = service.generateAndSend("1234567890")
         val secondOtp = service.generateAndSend("1234567890")
@@ -52,7 +56,7 @@ class OtpServiceTest {
 
     @Test
     fun `verify succeeds and deletes OTP when code matches and is not expired`() {
-        val service = OtpService(otpRecordRepository, successProvider, 5L, 6)
+        val service = OtpService(otpRecordRepository, successProvider, dummyEmailProvider, 5L, 6)
         val otp = service.generateAndSend("1234567890")
 
         service.verify("1234567890", otp)
@@ -62,7 +66,7 @@ class OtpServiceTest {
 
     @Test
     fun `verify throws InvalidOtpException when OTP does not match`() {
-        val service = OtpService(otpRecordRepository, successProvider, 5L, 6)
+        val service = OtpService(otpRecordRepository, successProvider, dummyEmailProvider, 5L, 6)
         service.generateAndSend("1234567890")
 
         assertThrows(InvalidOtpException::class.java) {
@@ -77,7 +81,7 @@ class OtpServiceTest {
             otp = "123456",
             expiresAt = LocalDateTime.now().minusMinutes(1)
         ))
-        val service = OtpService(otpRecordRepository, successProvider, 5L, 6)
+        val service = OtpService(otpRecordRepository, successProvider, dummyEmailProvider, 5L, 6)
 
         assertThrows(OtpExpiredException::class.java) {
             service.verify("9876543210", "123456")
@@ -89,7 +93,7 @@ class OtpServiceTest {
         val failingProvider = object : OtpProvider {
             override fun sendOtp(phone: String, otp: String): Boolean = false
         }
-        val service = OtpService(otpRecordRepository, failingProvider, 5L, 6)
+        val service = OtpService(otpRecordRepository, failingProvider, dummyEmailProvider, 5L, 6)
 
         assertThrows(OtpSendFailedException::class.java) {
             service.generateAndSend("1234567890")
@@ -107,7 +111,7 @@ class OtpServiceTest {
                 return true
             }
         }
-        val service = OtpService(otpRecordRepository, capturingProvider, 5L, 6)
+        val service = OtpService(otpRecordRepository, capturingProvider, dummyEmailProvider, 5L, 6)
         val otp = service.generateAndSend("5551234567")
 
         assertEquals("5551234567", sentPhone)
