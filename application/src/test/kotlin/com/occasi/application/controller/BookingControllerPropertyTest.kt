@@ -74,7 +74,7 @@ class BookingControllerPropertyTest : StringSpec() {
                         .with(user("1").roles("CUSTOMER"))
                 )
                     .andExpect(status().isNotFound)
-                    .andExpect(jsonPath("$.message").value("Artist not found"))
+                    .andExpect(jsonPath("$.error").value("Artist not found"))
             }
         }
     }
