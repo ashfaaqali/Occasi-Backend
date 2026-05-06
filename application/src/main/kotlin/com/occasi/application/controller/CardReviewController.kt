@@ -3,6 +3,7 @@ package com.occasi.application.controller
 import com.occasi.application.dto.CardReviewResponse
 import com.occasi.application.dto.CreateReviewRequest
 import com.occasi.application.service.CardReviewService
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -14,7 +15,7 @@ class CardReviewController(private val service: CardReviewService) {
     @PostMapping
     fun createReview(
         @PathVariable cardId: Long,
-        @RequestBody request: CreateReviewRequest
+        @Valid @RequestBody request: CreateReviewRequest
     ): ResponseEntity<CardReviewResponse> {
         val response = service.createReview(cardId, request)
         return ResponseEntity.status(HttpStatus.CREATED).body(response)

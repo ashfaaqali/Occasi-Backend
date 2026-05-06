@@ -5,6 +5,7 @@ import com.occasi.application.exception.*
 import com.occasi.application.model.CardOrder
 import com.occasi.application.model.OrderStatus
 import com.occasi.application.repository.CardOrderRepository
+import com.occasi.application.util.InputSanitizer
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -27,6 +28,9 @@ class CardOrderService(
             throw InvalidOrderQuantityException("Quantity must be at least ${card.minOrderQuantity}")
         }
 
+        // Sanitize free-form text fields
+        val sanitizedAddress = InputSanitizer.sanitize(request.deliveryAddress)
+
         val totalPrice = request.quantity * card.price
 
         val order = CardOrder(
@@ -36,7 +40,7 @@ class CardOrderService(
             isSample = request.isSample,
             totalPrice = totalPrice,
             status = OrderStatus.PENDING,
-            deliveryAddress = request.deliveryAddress,
+            deliveryAddress = sanitizedAddress,
             selectedSize = request.selectedSize,
             orderDate = LocalDateTime.now()
         )

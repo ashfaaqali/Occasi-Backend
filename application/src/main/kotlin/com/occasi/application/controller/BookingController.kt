@@ -4,6 +4,7 @@ import com.occasi.application.dto.*
 import com.occasi.application.model.BookingStatus
 import com.occasi.application.model.CancelledBy
 import com.occasi.application.service.BookingService
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.context.SecurityContextHolder
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*
 class BookingController(private val bookingService: BookingService) {
 
     @PostMapping
-    fun createBooking(@RequestBody request: CreateBookingRequest): ResponseEntity<BookingResponse> {
+    fun createBooking(@Valid @RequestBody request: CreateBookingRequest): ResponseEntity<BookingResponse> {
         val auth = SecurityContextHolder.getContext().authentication
         val authenticatedUserId = auth.principal as Long
         val secureRequest = request.copy(userId = authenticatedUserId)

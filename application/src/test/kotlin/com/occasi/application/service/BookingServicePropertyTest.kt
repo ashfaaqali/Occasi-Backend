@@ -8,6 +8,7 @@ import com.occasi.application.repository.BookingRepository
 import com.occasi.application.repository.HennaArtistRepository
 import com.occasi.application.repository.HennaDesignRepository
 import com.occasi.application.repository.UserRepository
+import com.occasi.application.util.InputSanitizer
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -92,9 +93,9 @@ class BookingServicePropertyTest : StringSpec({
 
             response.bookingStatus shouldBe "PENDING"
             response.price shouldBe price
-            response.customerName shouldBe name
+            response.customerName shouldBe InputSanitizer.sanitize(name)
             response.customerPhone shouldBe phone
-            response.serviceAddress shouldBe address
+            response.serviceAddress shouldBe InputSanitizer.sanitize(address)
         }
     }
 

@@ -15,6 +15,7 @@ import com.occasi.application.model.HennaArtist
 import com.occasi.application.repository.ArtistPricingRepository
 import com.occasi.application.repository.ArtistRefreshTokenRepository
 import com.occasi.application.repository.HennaArtistRepository
+import com.occasi.application.util.InputSanitizer
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -50,8 +51,11 @@ class ArtistAuthService(
             throw DuplicateArtistEmailException()
         }
 
+        // Sanitize free-form text fields
+        val sanitizedName = InputSanitizer.sanitize(request.name)
+
         val artist = HennaArtist(
-            name = request.name,
+            name = sanitizedName,
             email = request.email,
             mobileNumber = request.mobileNumber,
             cityName = request.cityName ?: "",
