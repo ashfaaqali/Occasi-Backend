@@ -2,6 +2,7 @@ package com.occasi.application.controller
 
 import com.occasi.application.dto.*
 import com.occasi.application.service.AuthService
+import jakarta.validation.Valid
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -10,13 +11,13 @@ import org.springframework.web.bind.annotation.*
 class AuthController(private val authService: AuthService) {
 
     @PostMapping("/send-otp")
-    fun sendOtp(@RequestBody request: SendOtpRequest): ResponseEntity<MessageResponse> {
+    fun sendOtp(@Valid @RequestBody request: SendOtpRequest): ResponseEntity<MessageResponse> {
         authService.sendOtp(request.phone)
         return ResponseEntity.ok(MessageResponse(message = "OTP sent"))
     }
 
     @PostMapping("/verify-otp")
-    fun verifyOtp(@RequestBody request: VerifyOtpRequest): ResponseEntity<AuthResponse> {
+    fun verifyOtp(@Valid @RequestBody request: VerifyOtpRequest): ResponseEntity<AuthResponse> {
         val authResponse = authService.verifyOtp(request.phone, request.otp)
         return ResponseEntity.ok(authResponse)
     }
@@ -46,13 +47,13 @@ class AuthController(private val authService: AuthService) {
     }
 
     @PostMapping("/refresh")
-    fun refreshToken(@RequestBody request: RefreshTokenRequest): ResponseEntity<TokenResponse> {
+    fun refreshToken(@Valid @RequestBody request: RefreshTokenRequest): ResponseEntity<TokenResponse> {
         val tokenResponse = authService.refreshToken(request.refreshToken)
         return ResponseEntity.ok(tokenResponse)
     }
 
     @PostMapping("/logout")
-    fun logout(@RequestBody request: LogoutRequest): ResponseEntity<MessageResponse> {
+    fun logout(@Valid @RequestBody request: LogoutRequest): ResponseEntity<MessageResponse> {
         authService.logout(request.refreshToken)
         return ResponseEntity.ok(MessageResponse(message = "Logged out successfully"))
     }

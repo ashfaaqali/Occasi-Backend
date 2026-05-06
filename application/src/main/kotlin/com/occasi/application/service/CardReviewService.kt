@@ -10,6 +10,7 @@ import com.occasi.application.model.OrderStatus
 import com.occasi.application.repository.CardOrderRepository
 import com.occasi.application.repository.CardReviewRepository
 import com.occasi.application.repository.UserRepository
+import com.occasi.application.util.InputSanitizer
 import org.springframework.stereotype.Service
 import java.time.format.DateTimeFormatter
 
@@ -45,6 +46,9 @@ class CardReviewService(
             throw DuplicateReviewException("A review already exists for this order")
         }
 
+        // Sanitize free-form text fields
+        val sanitizedReviewText = request.reviewText?.let { InputSanitizer.sanitize(it) }
+
         // Save review
         val review = CardReview(
             cardId = cardId,
@@ -55,7 +59,7 @@ class CardReviewService(
             printQualityRating = request.printQualityRating,
             paperFeelRating = request.paperFeelRating,
             packagingRating = request.packagingRating,
-            reviewText = request.reviewText,
+            reviewText = sanitizedReviewText,
             photoUrls = request.photoUrls?.joinToString(",")
         )
 

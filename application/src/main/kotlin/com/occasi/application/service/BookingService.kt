@@ -9,6 +9,7 @@ import com.occasi.application.repository.BookingRepository
 import com.occasi.application.repository.HennaArtistRepository
 import com.occasi.application.repository.HennaDesignRepository
 import com.occasi.application.repository.UserRepository
+import com.occasi.application.util.InputSanitizer
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
@@ -45,6 +46,10 @@ class BookingService(
         if (request.serviceAddress.isBlank()) throw InvalidBookingRequestException("Service address is required")
         if (request.scheduledDateTime.isBlank()) throw InvalidBookingRequestException("Scheduled date/time is required")
 
+        // Sanitize free-form text fields
+        val sanitizedName = InputSanitizer.sanitize(request.customerName)
+        val sanitizedAddress = InputSanitizer.sanitize(request.serviceAddress)
+
         // Resolve entities
         val user = userRepository.findById(request.userId)
             .orElseThrow { BookingNotFoundException("User not found") }
@@ -68,10 +73,10 @@ class BookingService(
             paymentMethod = paymentMethod,
             scheduledDateTime = scheduledDateTime,
             bookingDate = LocalDateTime.now(),
-            customerName = request.customerName,
+            customerName = sanitizedName,
             customerPhone = request.customerPhone,
             customerEmail = request.customerEmail ?: "",
-            serviceAddress = request.serviceAddress
+            serviceAddress = sanitizedAddress
         )
 
         // Create Razorpay order for online payments

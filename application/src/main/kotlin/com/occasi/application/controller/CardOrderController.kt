@@ -3,6 +3,7 @@ package com.occasi.application.controller
 import com.occasi.application.dto.*
 import com.occasi.application.model.OrderStatus
 import com.occasi.application.service.CardOrderService
+import jakarta.validation.Valid
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -12,7 +13,7 @@ import org.springframework.web.bind.annotation.*
 class CardOrderController(private val service: CardOrderService) {
 
     @PostMapping
-    fun createOrder(@RequestBody request: CreateCardOrderRequest): ResponseEntity<CardOrderResponse> {
+    fun createOrder(@Valid @RequestBody request: CreateCardOrderRequest): ResponseEntity<CardOrderResponse> {
         val response = if (request.isSample) {
             val sampleRequest = CreateSampleOrderRequest(
                 cardId = request.cardId,
