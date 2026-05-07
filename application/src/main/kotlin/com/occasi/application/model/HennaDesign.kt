@@ -1,6 +1,7 @@
 package com.occasi.application.model
 
 import jakarta.persistence.*
+import java.time.Instant
 
 @Entity
 data class HennaDesign(
@@ -13,7 +14,8 @@ data class HennaDesign(
     var complexity: String,          // "Simple", "Mid", "Complex"
     var tags: String = "",           // Comma-separated tags e.g. "BRIDAL,ARABIC,WEDDING"
     var likes: Int = 0,
-    var numberOfPeopleBooked: Int = 0
+    var numberOfPeopleBooked: Int = 0,
+    var updatedAt: Instant = Instant.now()
 ) {
     init {
         require(name.isNotBlank()) { "Design name must not be empty" }

@@ -2,6 +2,8 @@ package com.occasi.application.controller
 
 import com.occasi.application.model.InvitationCard
 import com.occasi.application.service.InvitationCardService
+import jakarta.servlet.http.HttpServletRequest
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -12,15 +14,28 @@ class InvitationCardController(private val service: InvitationCardService) {
     @GetMapping
     fun getAllCards(
         @RequestParam(required = false) material: String?,
-        @RequestParam(required = false) finish: String?
-    ): List<InvitationCard> {
+        @RequestParam(required = false) finish: String?,
+        request: HttpServletRequest
+    ): ResponseEntity<Any> {
         if (material != null) {
-            return service.getCardsByMaterial(material)
+            return ResponseEntity.ok(service.getCardsByMaterial(material))
         }
         if (finish != null) {
-            return service.getCardsByFinish(finish)
+            return ResponseEntity.ok(service.getCardsByFinish(finish))
         }
-        return service.getAllCards()
+
+        val cards = service.getAllCards()
+        val lastModified = cards.maxOfOrNull { it.updatedAt }
+
+        // Check If-Modified-Since
+        val ifModifiedSince = request.getDateHeader("If-Modified-Since")
+        if (lastModified != null && ifModifiedSince > 0 && lastModified.toEpochMilli() <= ifModifiedSince) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build()
+        }
+
+        return ResponseEntity.ok()
+            .lastModified(lastModified?.toEpochMilli() ?: System.currentTimeMillis())
+            .body(cards)
     }
 
     @GetMapping("/{id}")

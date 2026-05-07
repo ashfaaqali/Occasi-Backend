@@ -11,6 +11,7 @@ import com.occasi.application.repository.HennaDesignRepository
 import com.occasi.application.repository.UserRepository
 import com.occasi.application.util.InputSanitizer
 import org.slf4j.LoggerFactory
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.stereotype.Service
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
@@ -39,6 +40,7 @@ class BookingService(
         }
     }
 
+    @CacheEvict(value = ["userBookings"], allEntries = true)
     fun createBooking(request: CreateBookingRequest): BookingResponse {
         // Validate required fields
         if (request.customerName.isBlank()) throw InvalidBookingRequestException("Customer name is required")

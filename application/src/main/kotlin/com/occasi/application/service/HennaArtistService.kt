@@ -7,6 +7,8 @@ import com.occasi.application.model.ComplexityTier
 import com.occasi.application.model.HennaArtist
 import com.occasi.application.repository.ArtistPricingRepository
 import com.occasi.application.repository.HennaArtistRepository
+import org.springframework.cache.annotation.CacheEvict
+import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 
 @Service
@@ -15,10 +17,13 @@ class HennaArtistService(
     private val artistPricingRepository: ArtistPricingRepository
 ) {
 
+    @Cacheable("hennaArtists")
     fun getAllHennaArtists(): List<HennaArtist> = repository.findAll()
 
+    @Cacheable("artistDetail", key = "#id")
     fun getArtistById(id: Long): HennaArtist? = repository.findById(id).orElse(null)
 
+    @CacheEvict(value = ["hennaArtists", "artistDetail"], allEntries = true)
     fun registerArtist(request: ArtistRegistrationRequest): HennaArtist {
         val artist = HennaArtist(
             name = request.name,

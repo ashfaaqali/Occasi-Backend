@@ -2,6 +2,7 @@ package com.occasi.application.model
 
 import com.fasterxml.jackson.annotation.JsonManagedReference
 import jakarta.persistence.*
+import java.time.Instant
 
 @Entity
 data class HennaArtist(
@@ -19,7 +20,8 @@ data class HennaArtist(
     @Column(columnDefinition = "TEXT")
     var coverImage: String? = null,
     var startingPrice: Int = 0,
-    var passwordHash: String? = null
+    var passwordHash: String? = null,
+    var updatedAt: Instant = Instant.now()
 ) {
     @OneToMany(mappedBy = "artist", cascade = [CascadeType.ALL])
     @JsonManagedReference("artist-portfolio")

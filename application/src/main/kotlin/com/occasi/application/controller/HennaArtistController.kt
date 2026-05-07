@@ -2,6 +2,8 @@ package com.occasi.application.controller
 
 import com.occasi.application.dto.ArtistRegistrationRequest
 import com.occasi.application.service.HennaArtistService
+import jakarta.servlet.http.HttpServletRequest
+import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
@@ -10,16 +12,30 @@ import org.springframework.web.bind.annotation.*
 class HennaArtistController(private val service: HennaArtistService) {
 
     @GetMapping
-    fun getAllHennaArtists(@RequestParam complexity: String?): ResponseEntity<Any> {
-        return if (complexity != null) {
-            try {
+    fun getAllHennaArtists(
+        @RequestParam complexity: String?,
+        request: HttpServletRequest
+    ): ResponseEntity<Any> {
+        if (complexity != null) {
+            return try {
                 ResponseEntity.ok(service.getArtistsForComplexity(complexity))
             } catch (e: IllegalArgumentException) {
                 ResponseEntity.badRequest().body(mapOf("error" to "Invalid complexity tier: $complexity"))
             }
-        } else {
-            ResponseEntity.ok(service.getAllHennaArtists())
         }
+
+        val artists = service.getAllHennaArtists()
+        val lastModified = artists.maxOfOrNull { it.updatedAt }
+
+        // Check If-Modified-Since
+        val ifModifiedSince = request.getDateHeader("If-Modified-Since")
+        if (lastModified != null && ifModifiedSince > 0 && lastModified.toEpochMilli() <= ifModifiedSince) {
+            return ResponseEntity.status(HttpStatus.NOT_MODIFIED).build()
+        }
+
+        return ResponseEntity.ok()
+            .lastModified(lastModified?.toEpochMilli() ?: System.currentTimeMillis())
+            .body(artists)
     }
 
     @GetMapping("/{id}")

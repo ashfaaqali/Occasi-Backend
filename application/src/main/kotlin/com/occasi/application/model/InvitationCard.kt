@@ -1,6 +1,7 @@
 package com.occasi.application.model
 
 import jakarta.persistence.*
+import java.time.Instant
 
 @Entity
 data class InvitationCard(
@@ -19,5 +20,6 @@ data class InvitationCard(
     var tags: String = "",             // comma-separated
     var numberOfOrders: Int = 0,
     var averageRating: Double = 0.0,   // 0.0–5.0
-    var reviewCount: Int = 0
+    var reviewCount: Int = 0,
+    var updatedAt: Instant = Instant.now()
 )
