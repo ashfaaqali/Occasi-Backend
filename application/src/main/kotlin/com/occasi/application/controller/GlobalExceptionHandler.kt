@@ -257,6 +257,18 @@ class GlobalExceptionHandler {
             .body(ErrorResponse(error = ex.message ?: "Invalid rating value", code = "INVALID_RATING"))
     }
 
+    // Favourite exceptions
+
+    @ExceptionHandler(InvalidItemTypeException::class)
+    fun handleInvalidItemType(
+        ex: InvalidItemTypeException,
+        request: HttpServletRequest
+    ): ResponseEntity<ErrorResponse> {
+        logger.warn("INVALID_ITEM_TYPE: {} {}", request.method, request.requestURI)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse(error = ex.message ?: "Invalid item type", code = "INVALID_ITEM_TYPE"))
+    }
+
     // Spring / upload exceptions
 
     @ExceptionHandler(MethodArgumentNotValidException::class)
