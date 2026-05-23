@@ -1,0 +1,22 @@
+CREATE TABLE booking (
+    id BIGSERIAL PRIMARY KEY,
+    user_id BIGINT NOT NULL REFERENCES app_users(id),
+    artist_id BIGINT NOT NULL REFERENCES henna_artist(id),
+    design_id BIGINT NOT NULL REFERENCES henna_design(id),
+    price INTEGER NOT NULL,
+    booking_status VARCHAR(50) NOT NULL DEFAULT 'PENDING',
+    payment_status VARCHAR(50) NOT NULL DEFAULT 'UNPAID',
+    payment_method VARCHAR(50) NOT NULL DEFAULT 'ONLINE',
+    scheduled_date_time TIMESTAMP NOT NULL,
+    booking_date TIMESTAMP NOT NULL DEFAULT NOW(),
+    customer_name VARCHAR(255) NOT NULL,
+    customer_phone VARCHAR(255) NOT NULL,
+    customer_email VARCHAR(255) NOT NULL DEFAULT '',
+    service_address VARCHAR(500) NOT NULL,
+    razorpay_order_id VARCHAR(255),
+    razorpay_payment_id VARCHAR(255),
+    refund_amount INTEGER,
+    refund_id VARCHAR(255),
+    cancellation_reason VARCHAR(500),
+    cancelled_by VARCHAR(50)
+);

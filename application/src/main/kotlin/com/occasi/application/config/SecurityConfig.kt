@@ -10,6 +10,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.web.SecurityFilterChain
 import org.springframework.security.web.authentication.HttpStatusEntryPoint
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter
+import org.springframework.security.web.header.writers.ReferrerPolicyHeaderWriter
 
 @Configuration
 @EnableWebSecurity
@@ -24,7 +25,11 @@ class SecurityConfig {
             .csrf { it.disable() }
             .sessionManagement { it.sessionCreationPolicy(SessionCreationPolicy.STATELESS) }
             .headers { headers ->
-                headers.frameOptions { it.disable() }
+                headers.contentTypeOptions { }
+                headers.frameOptions { it.deny() }
+                headers.httpStrictTransportSecurity { it.includeSubDomains(true).maxAgeInSeconds(31536000) }
+                headers.contentSecurityPolicy { it.policyDirectives("default-src 'self'") }
+                headers.referrerPolicy { it.policy(ReferrerPolicyHeaderWriter.ReferrerPolicy.NO_REFERRER) }
             }
             .exceptionHandling { exceptions ->
                 exceptions.authenticationEntryPoint(HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED))

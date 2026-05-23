@@ -6,9 +6,11 @@ import com.occasi.application.repository.InvitationCardRepository
 import org.springframework.boot.CommandLineRunner
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Profile
 import kotlin.random.Random
 
 @Configuration
+@Profile("dev")
 class DataSeeder {
 
     // Invitation Card Data

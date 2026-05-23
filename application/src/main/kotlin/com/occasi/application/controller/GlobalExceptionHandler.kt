@@ -304,6 +304,12 @@ class GlobalExceptionHandler {
 
     // Catch-all handler
 
+    @ExceptionHandler(RateLimitExceededException::class)
+    fun handleRateLimit(ex: RateLimitExceededException): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+            .body(ErrorResponse(error = ex.message ?: "Too many requests", code = "RATE_LIMIT_EXCEEDED"))
+    }
+
     @ExceptionHandler(Exception::class)
     fun handleUnexpected(
         ex: Exception,

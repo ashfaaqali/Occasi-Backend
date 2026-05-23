@@ -1,0 +1,11 @@
+CREATE TABLE henna_design (
+    id BIGSERIAL PRIMARY KEY,
+    name VARCHAR(255) NOT NULL,
+    image_url TEXT NOT NULL,
+    price INTEGER NOT NULL,
+    complexity VARCHAR(50) NOT NULL,
+    tags VARCHAR(500) NOT NULL DEFAULT '',
+    likes INTEGER NOT NULL DEFAULT 0,
+    number_of_people_booked INTEGER NOT NULL DEFAULT 0,
+    updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT NOW()
+);

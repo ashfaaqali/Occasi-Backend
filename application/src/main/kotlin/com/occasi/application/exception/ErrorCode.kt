@@ -28,5 +28,7 @@ enum class ErrorCode(val httpStatus: HttpStatus) {
     FILE_TOO_LARGE(HttpStatus.BAD_REQUEST),
     VALIDATION_ERROR(HttpStatus.BAD_REQUEST),
     MALFORMED_REQUEST(HttpStatus.BAD_REQUEST),
+    INVALID_ITEM_TYPE(HttpStatus.BAD_REQUEST),
+    RATE_LIMIT_EXCEEDED(HttpStatus.TOO_MANY_REQUESTS),
     INTERNAL_ERROR(HttpStatus.INTERNAL_SERVER_ERROR);
 }
