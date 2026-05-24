@@ -1,0 +1,13 @@
+[Unit]
+Description=Occasi Spring Boot App
+After=network.target
+
+[Service]
+User=ec2-user
+ExecStart=/usr/bin/java -jar /home/ec2-user/occasi.jar
+EnvironmentFile=/home/ec2-user/.env
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
