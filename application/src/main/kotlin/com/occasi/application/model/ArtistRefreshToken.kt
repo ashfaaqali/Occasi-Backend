@@ -4,7 +4,7 @@ import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "artist_refresh_tokens")
+@Table(name = "artist_refresh_token")
 data class ArtistRefreshToken(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,

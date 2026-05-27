@@ -4,7 +4,7 @@ import jakarta.persistence.*
 import java.time.LocalDateTime
 
 @Entity
-@Table(name = "otp_records")
+@Table(name = "otp_record")
 data class OtpRecord(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,

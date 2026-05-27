@@ -9,7 +9,7 @@ import java.util.UUID
 
 @Service
 class ImageStorageService {
-    private val uploadDir = Path.of("./data/uploads")
+    private val uploadDir = Path.of(System.getProperty("user.home"), "data", "uploads")
 
     @PostConstruct
     fun init() {

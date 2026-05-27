@@ -7,7 +7,7 @@ import jakarta.persistence.*
 data class ArtistPortfolioImage(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
-    @Lob
+    @Column(columnDefinition = "TEXT")
     var imageUrl: String
 ) {
     @ManyToOne(fetch = FetchType.LAZY)

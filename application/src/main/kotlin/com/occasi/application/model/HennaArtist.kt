@@ -16,7 +16,6 @@ data class HennaArtist(
     var location: String,
     var rating: Short = 0,
     var reviews: Int = 0,
-    @Lob
     @Column(columnDefinition = "TEXT")
     var coverImage: String? = null,
     var startingPrice: Int = 0,
