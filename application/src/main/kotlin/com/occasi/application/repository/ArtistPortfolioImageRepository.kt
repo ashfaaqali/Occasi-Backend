@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository
 @Repository
 interface ArtistPortfolioImageRepository : JpaRepository<ArtistPortfolioImage, Long> {
     fun findByArtistId(artistId: Long): List<ArtistPortfolioImage>
+    fun countByArtistId(artistId: Long): Long
 }

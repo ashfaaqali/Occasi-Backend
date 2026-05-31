@@ -1,5 +1,6 @@
 package com.occasi.application.controller
 
+import com.occasi.application.constants.BackendRoutes
 import com.occasi.application.dto.*
 import com.occasi.application.model.BookingStatus
 import com.occasi.application.model.CancelledBy
@@ -11,7 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/bookings")
+@RequestMapping(BackendRoutes.Bookings.BASE)
 class BookingController(private val bookingService: BookingService) {
 
     @PostMapping
@@ -23,7 +24,7 @@ class BookingController(private val bookingService: BookingService) {
         return ResponseEntity.status(HttpStatus.CREATED).body(response)
     }
 
-    @PostMapping("/{id}/verify-payment")
+    @PostMapping(BackendRoutes.Bookings.VERIFY_PAYMENT)
     fun verifyPayment(
         @PathVariable id: Long,
         @RequestBody request: VerifyPaymentRequest
@@ -32,7 +33,7 @@ class BookingController(private val bookingService: BookingService) {
         return ResponseEntity.ok(response)
     }
 
-    @PostMapping("/{id}/cancel")
+    @PostMapping(BackendRoutes.Bookings.CANCEL)
     fun cancelBooking(
         @PathVariable id: Long,
         @RequestBody request: CancelBookingRequest
@@ -42,7 +43,7 @@ class BookingController(private val bookingService: BookingService) {
         return ResponseEntity.ok(response)
     }
 
-    @PutMapping("/{id}/status")
+    @PutMapping(BackendRoutes.Bookings.STATUS)
     fun updateStatus(
         @PathVariable id: Long,
         @RequestBody request: UpdateStatusRequest
@@ -52,19 +53,19 @@ class BookingController(private val bookingService: BookingService) {
         return ResponseEntity.ok(response)
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(BackendRoutes.Bookings.BY_ID)
     fun getBooking(@PathVariable id: Long): ResponseEntity<BookingResponse> {
         val response = bookingService.getBooking(id)
         return ResponseEntity.ok(response)
     }
 
-    @GetMapping("/user/{userId}")
+    @GetMapping(BackendRoutes.Bookings.BY_USER)
     fun getUserBookings(@PathVariable userId: Long): ResponseEntity<List<BookingResponse>> {
         val response = bookingService.getBookingsByUser(userId)
         return ResponseEntity.ok(response)
     }
 
-    @GetMapping("/artist/{artistId}")
+    @GetMapping(BackendRoutes.Bookings.BY_ARTIST)
     fun getArtistBookings(@PathVariable artistId: Long): ResponseEntity<List<BookingResponse>> {
         val response = bookingService.getBookingsByArtist(artistId)
         return ResponseEntity.ok(response)

@@ -1,5 +1,6 @@
 package com.occasi.application.service
 
+import com.occasi.application.constants.BackendMessages
 import com.occasi.application.dto.*
 import com.occasi.application.exception.*
 import com.occasi.application.model.CardOrder
@@ -71,7 +72,7 @@ class CardOrderService(
             request.cardId, request.customerId, true, OrderStatus.CANCELLED
         )
         if (existingSamples.isNotEmpty()) {
-            throw DuplicateSampleOrderException("You have already ordered a sample for this card")
+            throw DuplicateSampleOrderException(BackendMessages.CardOrder.DUPLICATE_SAMPLE)
         }
 
         val order = CardOrder(
@@ -104,7 +105,7 @@ class CardOrderService(
 
     fun verifyPayment(orderId: Long, request: VerifyPaymentRequest): CardOrderResponse {
         val order = cardOrderRepository.findById(orderId)
-            .orElseThrow { CardOrderNotFoundException("Card order not found") }
+            .orElseThrow { CardOrderNotFoundException(BackendMessages.CardOrder.NOT_FOUND) }
 
         val isValid = razorpayService.verifySignature(
             request.razorpayOrderId,
@@ -112,7 +113,7 @@ class CardOrderService(
             request.razorpaySignature
         )
         if (!isValid) {
-            throw PaymentVerificationException("Payment verification failed")
+            throw PaymentVerificationException(BackendMessages.Booking.PAYMENT_VERIFICATION_FAILED)
         }
 
         order.status = OrderStatus.CONFIRMED
@@ -125,7 +126,7 @@ class CardOrderService(
 
     fun updateStatus(orderId: Long, newStatus: OrderStatus): CardOrderResponse {
         val order = cardOrderRepository.findById(orderId)
-            .orElseThrow { CardOrderNotFoundException("Card order not found") }
+            .orElseThrow { CardOrderNotFoundException(BackendMessages.CardOrder.NOT_FOUND) }
 
         val currentStatus = order.status
         val isValidTransition = when (newStatus) {
@@ -141,7 +142,7 @@ class CardOrderService(
 
         if (!isValidTransition) {
             throw InvalidOrderStatusTransitionException(
-                "Invalid status transition from ${currentStatus.name} to ${newStatus.name}"
+                BackendMessages.CardOrder.INVALID_STATUS_TRANSITION
             )
         }
 
@@ -154,7 +155,7 @@ class CardOrderService(
                         razorpayService.initiateRefund(paymentId, order.totalPrice * 100)
                     } catch (e: Exception) {
                         logger.error("Failed to initiate refund for order $orderId: ${e.message}", e)
-                        throw RuntimeException("Failed to initiate refund. Please try again.", e)
+                        throw RuntimeException(BackendMessages.Booking.REFUND_FAILED, e)
                     }
                 }
             }
@@ -169,7 +170,7 @@ class CardOrderService(
 
     fun getOrder(orderId: Long): CardOrderResponse {
         val order = cardOrderRepository.findById(orderId)
-            .orElseThrow { CardOrderNotFoundException("Card order not found") }
+            .orElseThrow { CardOrderNotFoundException(BackendMessages.CardOrder.NOT_FOUND) }
         val card = invitationCardService.getCardById(order.cardId)
         return toResponse(order, card?.name ?: "Unknown")
     }

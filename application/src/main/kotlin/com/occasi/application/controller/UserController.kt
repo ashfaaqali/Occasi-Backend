@@ -1,12 +1,13 @@
 package com.occasi.application.controller
 
+import com.occasi.application.constants.BackendRoutes
 import com.occasi.application.dto.UserDto as UserDtoResponse
 import com.occasi.application.model.User
 import com.occasi.application.service.UserService
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/users")
+@RequestMapping(BackendRoutes.Users.BASE)
 class UserController(private val service: UserService) {
     @PostMapping
     fun registerUser(@RequestBody user: User) = service.registerUser(user)
@@ -14,10 +15,10 @@ class UserController(private val service: UserService) {
     @GetMapping
     fun getAllUsers() = service.getAllUsers()
     
-    @GetMapping("/{id}")
+    @GetMapping(BackendRoutes.Users.BY_ID)
     fun getUser(@PathVariable id: Long) = service.getUser(id)
 
-    @PatchMapping("/{id}/profile")
+    @PatchMapping(BackendRoutes.Users.PROFILE)
     fun updateProfile(
         @PathVariable id: Long,
         @RequestBody request: UpdateProfileRequest

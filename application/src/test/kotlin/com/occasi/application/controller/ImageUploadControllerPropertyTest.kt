@@ -1,5 +1,7 @@
 package com.occasi.application.controller
 
+import com.occasi.application.constants.BackendMessages
+import com.occasi.application.repository.ArtistPortfolioImageRepository
 import com.occasi.application.service.S3StorageService
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -15,6 +17,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.springframework.http.HttpStatus
 import org.springframework.mock.web.MockMultipartFile
+import org.springframework.security.core.Authentication
 import java.util.UUID
 
 // Feature: image-handling
@@ -30,12 +33,20 @@ class ImageUploadControllerPropertyTest : StringSpec({
         "image/x-icon", "audio/mpeg"
     )
 
+    fun createAuth(artistId: Long = 1L): Authentication {
+        val auth = mock<Authentication>()
+        whenever(auth.principal).thenReturn(artistId)
+        return auth
+    }
+
     fun createController(): ImageUploadController {
         val mockService = mock<S3StorageService>()
         whenever(mockService.upload(any(), any(), anyOrNull())).thenAnswer {
             "https://test-bucket.s3.us-east-1.amazonaws.com/images/${UUID.randomUUID()}.jpg"
         }
-        return ImageUploadController(mockService)
+        val mockRepo = mock<ArtistPortfolioImageRepository>()
+        whenever(mockRepo.countByArtistId(any())).thenReturn(0L)
+        return ImageUploadController(mockService, mockRepo)
     }
 
     // Property 1: Upload response contains unique URL with correct path prefix
@@ -43,7 +54,7 @@ class ImageUploadControllerPropertyTest : StringSpec({
         val controller = createController()
         checkAll(PropTestConfig(minSuccess = 100), validContentTypeArb, smallValidFileSizeArb) { contentType, size ->
             val file = MockMultipartFile("file", "test.jpg", contentType, ByteArray(size) { (it % 256).toByte() })
-            val response = controller.uploadImage(file)
+            val response = controller.uploadImage(file, createAuth())
             response.statusCode shouldBe HttpStatus.OK
             @Suppress("UNCHECKED_CAST")
             val body = response.body as Map<String, Any>
@@ -55,8 +66,8 @@ class ImageUploadControllerPropertyTest : StringSpec({
         val controller = createController()
         checkAll(PropTestConfig(minSuccess = 100), validContentTypeArb, Arb.string(5..20, Codepoint.alphanumeric())) { contentType, filename ->
             val fileBytes = ByteArray(100) { (it % 256).toByte() }
-            val r1 = controller.uploadImage(MockMultipartFile("file", "$filename.jpg", contentType, fileBytes))
-            val r2 = controller.uploadImage(MockMultipartFile("file", "$filename.jpg", contentType, fileBytes))
+            val r1 = controller.uploadImage(MockMultipartFile("file", "$filename.jpg", contentType, fileBytes), createAuth())
+            val r2 = controller.uploadImage(MockMultipartFile("file", "$filename.jpg", contentType, fileBytes), createAuth())
             r1.statusCode shouldBe HttpStatus.OK
             r2.statusCode shouldBe HttpStatus.OK
             @Suppress("UNCHECKED_CAST")
@@ -69,10 +80,10 @@ class ImageUploadControllerPropertyTest : StringSpec({
         val controller = createController()
         checkAll(PropTestConfig(minSuccess = 100), validContentTypeArb, oversizedFileSizeArb) { contentType, size ->
             val file = MockMultipartFile("file", "big.jpg", contentType, ByteArray(size))
-            val response = controller.uploadImage(file)
+            val response = controller.uploadImage(file, createAuth())
             response.statusCode shouldBe HttpStatus.BAD_REQUEST
             @Suppress("UNCHECKED_CAST")
-            (response.body as Map<String, Any>)["error"] shouldBe "File size exceeds the 5 MB limit"
+            (response.body as Map<String, Any>)["error"] shouldBe BackendMessages.Upload.FILE_TOO_LARGE
         }
     }
 
@@ -80,7 +91,7 @@ class ImageUploadControllerPropertyTest : StringSpec({
         val controller = createController()
         checkAll(PropTestConfig(minSuccess = 100), validContentTypeArb, smallValidFileSizeArb) { contentType, size ->
             val file = MockMultipartFile("file", "ok.jpg", contentType, ByteArray(size) { (it % 256).toByte() })
-            controller.uploadImage(file).statusCode shouldBe HttpStatus.OK
+            controller.uploadImage(file, createAuth()).statusCode shouldBe HttpStatus.OK
         }
     }
 
@@ -89,10 +100,10 @@ class ImageUploadControllerPropertyTest : StringSpec({
         val controller = createController()
         checkAll(PropTestConfig(minSuccess = 100), invalidContentTypeArb, smallValidFileSizeArb) { contentType, size ->
             val file = MockMultipartFile("file", "image.gif", contentType, ByteArray(size) { (it % 256).toByte() })
-            val response = controller.uploadImage(file)
+            val response = controller.uploadImage(file, createAuth())
             response.statusCode shouldBe HttpStatus.BAD_REQUEST
             @Suppress("UNCHECKED_CAST")
-            (response.body as Map<String, Any>)["error"] shouldBe "Unsupported image format. Supported formats: JPEG, PNG, WebP"
+            (response.body as Map<String, Any>)["error"] shouldBe BackendMessages.Upload.UNSUPPORTED_FORMAT
         }
     }
 
@@ -100,7 +111,7 @@ class ImageUploadControllerPropertyTest : StringSpec({
         val controller = createController()
         checkAll(PropTestConfig(minSuccess = 100), validContentTypeArb, smallValidFileSizeArb) { contentType, size ->
             val file = MockMultipartFile("file", "image.jpg", contentType, ByteArray(size) { (it % 256).toByte() })
-            controller.uploadImage(file).statusCode shouldBe HttpStatus.OK
+            controller.uploadImage(file, createAuth()).statusCode shouldBe HttpStatus.OK
         }
     }
 })

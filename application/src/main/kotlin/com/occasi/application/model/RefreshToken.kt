@@ -1,6 +1,8 @@
 package com.occasi.application.model
 
 import jakarta.persistence.*
+import org.hibernate.annotations.OnDelete
+import org.hibernate.annotations.OnDeleteAction
 import java.time.LocalDateTime
 
 @Entity
@@ -13,6 +15,7 @@ data class RefreshToken(
 
     @ManyToOne
     @JoinColumn(name = "user_id")
+    @OnDelete(action = OnDeleteAction.CASCADE)
     var user: User,
 
     var expiresAt: LocalDateTime,

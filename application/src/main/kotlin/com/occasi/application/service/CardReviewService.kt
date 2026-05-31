@@ -1,5 +1,6 @@
 package com.occasi.application.service
 
+import com.occasi.application.constants.BackendMessages
 import com.occasi.application.dto.CardReviewResponse
 import com.occasi.application.dto.CreateReviewRequest
 import com.occasi.application.exception.DuplicateReviewException
@@ -34,16 +35,16 @@ class CardReviewService(
 
         // Verify customer has a DELIVERED order for this card
         val order = cardOrderRepository.findById(request.orderId)
-            .orElseThrow { ReviewNotEligibleException("You must have a delivered order to review this card") }
+            .orElseThrow { ReviewNotEligibleException(BackendMessages.CardReview.NOT_ELIGIBLE) }
 
         if (order.cardId != cardId || order.customerId != request.customerId || order.status != OrderStatus.DELIVERED) {
-            throw ReviewNotEligibleException("You must have a delivered order to review this card")
+            throw ReviewNotEligibleException(BackendMessages.CardReview.NOT_ELIGIBLE)
         }
 
         // Verify no existing review for this order
         val existingReview = cardReviewRepository.findByOrderId(request.orderId)
         if (existingReview != null) {
-            throw DuplicateReviewException("A review already exists for this order")
+            throw DuplicateReviewException(BackendMessages.CardReview.DUPLICATE)
         }
 
         // Sanitize free-form text fields
@@ -81,7 +82,7 @@ class CardReviewService(
 
     private fun validateRating(rating: Int) {
         if (rating < 1 || rating > 5) {
-            throw InvalidRatingException("Rating must be between 1 and 5")
+            throw InvalidRatingException(BackendMessages.CardReview.INVALID_RATING)
         }
     }
 

@@ -1,5 +1,6 @@
 package com.occasi.application.controller
 
+import com.occasi.application.constants.BackendRoutes
 import com.occasi.application.model.InvitationCard
 import com.occasi.application.service.InvitationCardService
 import jakarta.servlet.http.HttpServletRequest
@@ -8,7 +9,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/invitation-cards")
+@RequestMapping(BackendRoutes.InvitationCards.BASE)
 class InvitationCardController(private val service: InvitationCardService) {
 
     @GetMapping
@@ -38,7 +39,7 @@ class InvitationCardController(private val service: InvitationCardService) {
             .body(cards)
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(BackendRoutes.InvitationCards.BY_ID)
     fun getCardById(@PathVariable id: Long): ResponseEntity<InvitationCard> {
         val card = service.getCardById(id)
         return if (card != null) {

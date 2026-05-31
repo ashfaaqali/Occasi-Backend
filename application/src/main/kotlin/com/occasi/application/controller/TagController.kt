@@ -1,10 +1,11 @@
 package com.occasi.application.controller
 
+import com.occasi.application.constants.BackendRoutes
 import com.occasi.application.service.TagService
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/tags")
+@RequestMapping(BackendRoutes.Tags.BASE)
 class TagController(private val tagService: TagService) {
 
     @GetMapping

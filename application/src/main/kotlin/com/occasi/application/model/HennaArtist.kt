@@ -22,11 +22,11 @@ data class HennaArtist(
     var passwordHash: String? = null,
     var updatedAt: Instant = Instant.now()
 ) {
-    @OneToMany(mappedBy = "artist", cascade = [CascadeType.ALL])
+    @OneToMany(mappedBy = "artist", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonManagedReference("artist-portfolio")
     var portfolioImages: List<ArtistPortfolioImage> = ArrayList()
 
-    @OneToMany(mappedBy = "artist", cascade = [CascadeType.ALL])
+    @OneToMany(mappedBy = "artist", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonManagedReference("artist-pricing")
     var pricingTiers: List<ArtistPricing> = ArrayList()
 }

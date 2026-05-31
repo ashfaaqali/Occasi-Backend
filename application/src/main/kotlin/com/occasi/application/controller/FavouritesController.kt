@@ -1,5 +1,6 @@
 package com.occasi.application.controller
 
+import com.occasi.application.constants.BackendRoutes
 import com.occasi.application.dto.FavouriteItemResponse
 import com.occasi.application.dto.FavouriteRequest
 import com.occasi.application.exception.InvalidItemTypeException
@@ -12,7 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/api/favourites")
+@RequestMapping(BackendRoutes.Favourites.BASE)
 class FavouritesController(private val favouritesService: FavouritesService) {
 
     @PostMapping
