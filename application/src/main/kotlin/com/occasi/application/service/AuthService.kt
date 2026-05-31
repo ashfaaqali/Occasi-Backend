@@ -1,5 +1,6 @@
 package com.occasi.application.service
 
+import com.occasi.application.constants.BackendMessages
 import com.occasi.application.dto.AuthResponse
 import com.occasi.application.dto.TokenResponse
 import com.occasi.application.dto.UserDto
@@ -88,11 +89,11 @@ class AuthService(
 
     fun refreshToken(refreshToken: String): TokenResponse {
         val storedToken = refreshTokenRepository.findByToken(refreshToken)
-            ?: throw InvalidRefreshTokenException("Session expired. Please log in again.")
+            ?: throw InvalidRefreshTokenException(BackendMessages.Auth.ARTIST_SESSION_EXPIRED)
 
         if (storedToken.expiresAt.isBefore(LocalDateTime.now())) {
             refreshTokenRepository.deleteByToken(refreshToken)
-            throw InvalidRefreshTokenException("Session expired. Please log in again.")
+            throw InvalidRefreshTokenException(BackendMessages.Auth.ARTIST_SESSION_EXPIRED)
         }
 
         val accessToken = jwtService.generateAccessToken(storedToken.user)

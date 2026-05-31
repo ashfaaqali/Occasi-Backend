@@ -1,5 +1,6 @@
 package com.occasi.application.controller
 
+import com.occasi.application.constants.BackendRoutes
 import com.occasi.application.dto.CardReviewResponse
 import com.occasi.application.dto.CreateReviewRequest
 import com.occasi.application.service.CardReviewService
@@ -9,7 +10,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/invitation-cards/{cardId}/reviews")
+@RequestMapping(BackendRoutes.CardReviews.BASE)
 class CardReviewController(private val service: CardReviewService) {
 
     @PostMapping

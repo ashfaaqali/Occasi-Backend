@@ -10,4 +10,5 @@ interface ArtistPricingRepository : JpaRepository<ArtistPricing, Long> {
     fun findByArtistId(artistId: Long): List<ArtistPricing>
     fun findByArtistIdAndComplexity(artistId: Long, complexity: ComplexityTier): ArtistPricing?
     fun findByComplexity(complexity: ComplexityTier): List<ArtistPricing>
+    fun deleteByArtistId(artistId: Long)
 }

@@ -1,5 +1,6 @@
 package com.occasi.application.controller
 
+import com.occasi.application.constants.BackendRoutes
 import com.occasi.application.dto.*
 import com.occasi.application.model.OrderStatus
 import com.occasi.application.service.CardOrderService
@@ -9,7 +10,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/card-orders")
+@RequestMapping(BackendRoutes.CardOrders.BASE)
 class CardOrderController(private val service: CardOrderService) {
 
     @PostMapping
@@ -28,7 +29,7 @@ class CardOrderController(private val service: CardOrderService) {
         return ResponseEntity.status(HttpStatus.CREATED).body(response)
     }
 
-    @PostMapping("/{orderId}/verify-payment")
+    @PostMapping(BackendRoutes.CardOrders.VERIFY_PAYMENT)
     fun verifyPayment(
         @PathVariable orderId: Long,
         @RequestBody request: VerifyPaymentRequest
@@ -37,7 +38,7 @@ class CardOrderController(private val service: CardOrderService) {
         return ResponseEntity.ok(response)
     }
 
-    @PatchMapping("/{orderId}/status")
+    @PatchMapping(BackendRoutes.CardOrders.STATUS)
     fun updateStatus(
         @PathVariable orderId: Long,
         @RequestBody request: UpdateOrderStatusRequest
@@ -47,19 +48,19 @@ class CardOrderController(private val service: CardOrderService) {
         return ResponseEntity.ok(response)
     }
 
-    @GetMapping("/{orderId}")
+    @GetMapping(BackendRoutes.CardOrders.BY_ID)
     fun getOrder(@PathVariable orderId: Long): ResponseEntity<CardOrderResponse> {
         val response = service.getOrder(orderId)
         return ResponseEntity.ok(response)
     }
 
-    @GetMapping("/customer/{customerId}")
+    @GetMapping(BackendRoutes.CardOrders.BY_CUSTOMER)
     fun getCustomerOrders(@PathVariable customerId: Long): ResponseEntity<List<CardOrderResponse>> {
         val response = service.getCustomerOrders(customerId)
         return ResponseEntity.ok(response)
     }
 
-    @GetMapping("/sample-check")
+    @GetMapping(BackendRoutes.CardOrders.SAMPLE_CHECK)
     fun hasSampleOrder(
         @RequestParam cardId: Long,
         @RequestParam customerId: Long

@@ -10,4 +10,5 @@ interface ArtistRefreshTokenRepository : JpaRepository<ArtistRefreshToken, Long>
     fun findByToken(token: String): ArtistRefreshToken?
     fun deleteByToken(token: String)
     fun deleteByArtist(artist: HennaArtist)
+    fun deleteByArtistId(artistId: Long)
 }

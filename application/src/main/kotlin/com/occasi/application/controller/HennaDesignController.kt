@@ -1,5 +1,6 @@
 package com.occasi.application.controller
 
+import com.occasi.application.constants.BackendRoutes
 import com.occasi.application.model.HennaDesign
 import com.occasi.application.service.HennaDesignService
 import jakarta.servlet.http.HttpServletRequest
@@ -8,7 +9,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/designs")
+@RequestMapping(BackendRoutes.HennaDesigns.BASE)
 class HennaDesignController(private val service: HennaDesignService) {
 
     @GetMapping
@@ -35,7 +36,7 @@ class HennaDesignController(private val service: HennaDesignService) {
             .body(designs)
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(BackendRoutes.HennaDesigns.BY_ID)
     fun getDesignById(@PathVariable id: Long): ResponseEntity<Any> {
         val design = service.getDesignById(id)
         return if (design != null) {
@@ -45,6 +46,6 @@ class HennaDesignController(private val service: HennaDesignService) {
         }
     }
 
-    @GetMapping("/complexity/{level}")
+    @GetMapping(BackendRoutes.HennaDesigns.BY_COMPLEXITY)
     fun getByComplexity(@PathVariable level: String) = service.getDesignsByComplexity(level)
 }

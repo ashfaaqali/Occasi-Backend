@@ -1,5 +1,6 @@
 package com.occasi.application.service
 
+import com.occasi.application.constants.BackendMessages
 import com.occasi.application.dto.BookingResponse
 import com.occasi.application.dto.CreateBookingRequest
 import com.occasi.application.exception.*
@@ -43,10 +44,10 @@ class BookingService(
     @CacheEvict(value = ["userBookings"], allEntries = true)
     fun createBooking(request: CreateBookingRequest): BookingResponse {
         // Validate required fields
-        if (request.customerName.isBlank()) throw InvalidBookingRequestException("Customer name is required")
-        if (request.customerPhone.isBlank()) throw InvalidBookingRequestException("Customer phone is required")
-        if (request.serviceAddress.isBlank()) throw InvalidBookingRequestException("Service address is required")
-        if (request.scheduledDateTime.isBlank()) throw InvalidBookingRequestException("Scheduled date/time is required")
+        if (request.customerName.isBlank()) throw InvalidBookingRequestException(BackendMessages.Booking.CUSTOMER_NAME_REQUIRED)
+        if (request.customerPhone.isBlank()) throw InvalidBookingRequestException(BackendMessages.Booking.CUSTOMER_PHONE_REQUIRED)
+        if (request.serviceAddress.isBlank()) throw InvalidBookingRequestException(BackendMessages.Booking.SERVICE_ADDRESS_REQUIRED)
+        if (request.scheduledDateTime.isBlank()) throw InvalidBookingRequestException(BackendMessages.Booking.SCHEDULED_DATETIME_REQUIRED)
 
         // Sanitize free-form text fields
         val sanitizedName = InputSanitizer.sanitize(request.customerName)
@@ -56,7 +57,7 @@ class BookingService(
         val user = userRepository.findById(request.userId)
             .orElseThrow { BookingNotFoundException("User not found") }
         val artist = artistRepository.findById(request.artistId)
-            .orElseThrow { BookingNotFoundException("Artist not found") }
+            .orElseThrow { BookingNotFoundException(BackendMessages.Artist.NOT_FOUND) }
         val design = designRepository.findById(request.designId)
             .orElseThrow { BookingNotFoundException("Design not found") }
 
@@ -87,7 +88,7 @@ class BookingService(
                 val orderId = razorpayService.createOrder(resolvedPrice * 100, 0)
                 booking.razorpayOrderId = orderId
             } catch (e: Exception) {
-                throw RuntimeException("Failed to create payment order. Please try again or choose Pay After Service.", e)
+                throw RuntimeException(BackendMessages.Booking.PAYMENT_ORDER_FAILED, e)
             }
         }
 
@@ -101,11 +102,11 @@ class BookingService(
 
     fun verifyPayment(bookingId: Long, paymentId: String, orderId: String, signature: String): BookingResponse {
         val booking = bookingRepository.findById(bookingId)
-            .orElseThrow { BookingNotFoundException("Booking not found") }
+            .orElseThrow { BookingNotFoundException(BackendMessages.Booking.NOT_FOUND) }
 
         val isValid = razorpayService.verifySignature(orderId, paymentId, signature)
         if (!isValid) {
-            throw PaymentVerificationException("Payment verification failed")
+            throw PaymentVerificationException(BackendMessages.Booking.PAYMENT_VERIFICATION_FAILED)
         }
 
         booking.bookingStatus = BookingStatus.CONFIRMED
@@ -116,10 +117,10 @@ class BookingService(
 
     fun cancelBooking(bookingId: Long, reason: String, cancelledBy: CancelledBy): BookingResponse {
         val booking = bookingRepository.findById(bookingId)
-            .orElseThrow { BookingNotFoundException("Booking not found") }
+            .orElseThrow { BookingNotFoundException(BackendMessages.Booking.NOT_FOUND) }
 
         if (booking.bookingStatus == BookingStatus.COMPLETED) {
-            throw InvalidStatusTransitionException("Completed bookings cannot be cancelled")
+            throw InvalidStatusTransitionException(BackendMessages.Booking.COMPLETED_CANNOT_CANCEL)
         }
 
         val refundPercentage = cancellationEngine.calculateRefundPercentage(booking.scheduledDateTime, cancelledBy)
@@ -142,7 +143,7 @@ class BookingService(
 
     fun updateStatus(bookingId: Long, newStatus: BookingStatus): BookingResponse {
         val booking = bookingRepository.findById(bookingId)
-            .orElseThrow { BookingNotFoundException("Booking not found") }
+            .orElseThrow { BookingNotFoundException(BackendMessages.Booking.NOT_FOUND) }
 
         val currentStatus = booking.bookingStatus
         val isValidTransition = when (newStatus) {
@@ -154,7 +155,7 @@ class BookingService(
         }
 
         if (!isValidTransition) {
-            throw InvalidStatusTransitionException("Invalid status transition")
+            throw InvalidStatusTransitionException(BackendMessages.Booking.INVALID_STATUS_TRANSITION)
         }
 
         booking.bookingStatus = newStatus
@@ -163,7 +164,7 @@ class BookingService(
 
     fun getBooking(id: Long): BookingResponse {
         val booking = bookingRepository.findById(id)
-            .orElseThrow { BookingNotFoundException("Booking not found") }
+            .orElseThrow { BookingNotFoundException(BackendMessages.Booking.NOT_FOUND) }
         return toBookingResponse(booking)
     }
 
@@ -174,7 +175,7 @@ class BookingService(
 
     fun getBookingsByArtist(artistId: Long): List<BookingResponse> {
         artistRepository.findById(artistId)
-            .orElseThrow { ArtistNotFoundException("Artist not found") }
+            .orElseThrow { ArtistNotFoundException(BackendMessages.Artist.NOT_FOUND) }
         return bookingRepository.findByArtistIdOrderByScheduledDateTimeDesc(artistId)
             .map { toBookingResponse(it) }
     }

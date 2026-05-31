@@ -50,8 +50,9 @@ class RateLimitInterceptor(private val jwtService: JwtService) : HandlerIntercep
     }
 
     private fun resolveGroup(path: String): String = when {
-        path.contains("/api/auth/send-otp") || path.contains("/api/auth/send-email-otp") -> "otp"
-        path.startsWith("/api/auth") || path.startsWith("/api/artist-auth") -> "auth"
+        path.contains("forgot-password") || path.contains("reset-password") ||
+        path.contains("send-otp") || path.contains("send-email-otp") -> "otp"
+        path.startsWith("/artist-auth") || path.startsWith("/auth") -> "auth"
         else -> "api"
     }
 

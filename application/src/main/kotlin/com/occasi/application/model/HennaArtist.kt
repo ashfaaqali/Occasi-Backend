@@ -16,18 +16,17 @@ data class HennaArtist(
     var location: String,
     var rating: Short = 0,
     var reviews: Int = 0,
-    @Lob
     @Column(columnDefinition = "TEXT")
     var coverImage: String? = null,
     var startingPrice: Int = 0,
     var passwordHash: String? = null,
     var updatedAt: Instant = Instant.now()
 ) {
-    @OneToMany(mappedBy = "artist", cascade = [CascadeType.ALL])
+    @OneToMany(mappedBy = "artist", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonManagedReference("artist-portfolio")
     var portfolioImages: List<ArtistPortfolioImage> = ArrayList()
 
-    @OneToMany(mappedBy = "artist", cascade = [CascadeType.ALL])
+    @OneToMany(mappedBy = "artist", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonManagedReference("artist-pricing")
     var pricingTiers: List<ArtistPricing> = ArrayList()
 }

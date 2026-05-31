@@ -1,5 +1,6 @@
 package com.occasi.application.controller
 
+import com.occasi.application.constants.BackendMessages
 import com.occasi.application.dto.ErrorResponse
 import com.occasi.application.exception.*
 import com.occasi.application.service.*
@@ -36,7 +37,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("INVALID_PHONE: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse(error = ex.message ?: "Invalid phone number", code = "INVALID_PHONE"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.Auth.INVALID_PHONE, code = "INVALID_PHONE"))
     }
 
     @ExceptionHandler(InvalidOtpException::class)
@@ -46,7 +47,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("INVALID_OTP: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(ErrorResponse(error = ex.message ?: "Invalid OTP", code = "INVALID_OTP"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.Auth.INVALID_OTP, code = "INVALID_OTP"))
     }
 
     @ExceptionHandler(OtpExpiredException::class)
@@ -56,7 +57,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("OTP_EXPIRED: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(ErrorResponse(error = ex.message ?: "OTP has expired", code = "OTP_EXPIRED"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.Auth.OTP_EXPIRED, code = "OTP_EXPIRED"))
     }
 
     @ExceptionHandler(OtpSendFailedException::class)
@@ -66,7 +67,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.error("OTP_SEND_FAILED: {} {} - {}", request.method, request.requestURI, ex.message, ex)
         return ResponseEntity.status(HttpStatus.SERVICE_UNAVAILABLE)
-            .body(ErrorResponse(error = ex.message ?: "Unable to send OTP", code = "OTP_SEND_FAILED"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.Auth.OTP_SEND_FAILED, code = "OTP_SEND_FAILED"))
     }
 
     @ExceptionHandler(InvalidGoogleTokenException::class)
@@ -76,7 +77,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("INVALID_GOOGLE_TOKEN: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(ErrorResponse(error = ex.message ?: "Invalid Google credentials", code = "INVALID_GOOGLE_TOKEN"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.Auth.INVALID_GOOGLE_TOKEN, code = "INVALID_GOOGLE_TOKEN"))
     }
 
     @ExceptionHandler(InvalidRefreshTokenException::class)
@@ -86,7 +87,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("INVALID_REFRESH_TOKEN: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(ErrorResponse(error = ex.message ?: "Session expired", code = "INVALID_REFRESH_TOKEN"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.Auth.SESSION_EXPIRED, code = "INVALID_REFRESH_TOKEN"))
     }
 
     // Artist exceptions
@@ -98,7 +99,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("ARTIST_NOT_FOUND: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(ErrorResponse(error = ex.message ?: "Artist not found", code = "ARTIST_NOT_FOUND"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.Artist.NOT_FOUND, code = "ARTIST_NOT_FOUND"))
     }
 
     @ExceptionHandler(DuplicateArtistEmailException::class)
@@ -108,7 +109,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("DUPLICATE_ARTIST_EMAIL: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.CONFLICT)
-            .body(ErrorResponse(error = ex.message ?: "An artist with this email already exists", code = "DUPLICATE_ARTIST_EMAIL"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.Artist.DUPLICATE_EMAIL, code = "DUPLICATE_ARTIST_EMAIL"))
     }
 
     @ExceptionHandler(InvalidArtistCredentialsException::class)
@@ -118,7 +119,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("INVALID_ARTIST_CREDENTIALS: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(ErrorResponse(error = ex.message ?: "Invalid email or password", code = "INVALID_ARTIST_CREDENTIALS"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.Artist.INVALID_CREDENTIALS, code = "INVALID_ARTIST_CREDENTIALS"))
     }
 
     @ExceptionHandler(InvalidArtistRefreshTokenException::class)
@@ -128,7 +129,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("INVALID_ARTIST_REFRESH_TOKEN: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
-            .body(ErrorResponse(error = ex.message ?: "Session expired. Please log in again.", code = "INVALID_ARTIST_REFRESH_TOKEN"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.Auth.ARTIST_SESSION_EXPIRED, code = "INVALID_ARTIST_REFRESH_TOKEN"))
     }
 
     // Booking exceptions
@@ -140,7 +141,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("BOOKING_NOT_FOUND: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(ErrorResponse(error = ex.message ?: "Booking not found", code = "BOOKING_NOT_FOUND"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.Booking.NOT_FOUND, code = "BOOKING_NOT_FOUND"))
     }
 
     @ExceptionHandler(InvalidStatusTransitionException::class)
@@ -150,7 +151,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("INVALID_STATUS_TRANSITION: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse(error = ex.message ?: "Invalid status transition", code = "INVALID_STATUS_TRANSITION"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.Booking.INVALID_STATUS_TRANSITION, code = "INVALID_STATUS_TRANSITION"))
     }
 
     @ExceptionHandler(PaymentVerificationException::class)
@@ -160,7 +161,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("PAYMENT_VERIFICATION_FAILED: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse(error = ex.message ?: "Payment verification failed", code = "PAYMENT_VERIFICATION_FAILED"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.Booking.PAYMENT_VERIFICATION_FAILED, code = "PAYMENT_VERIFICATION_FAILED"))
     }
 
     @ExceptionHandler(RefundFailedException::class)
@@ -170,7 +171,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.error("REFUND_FAILED: {} {} - {}", request.method, request.requestURI, ex.message, ex)
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(ErrorResponse(error = ex.message ?: "Failed to initiate refund", code = "REFUND_FAILED"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.Booking.REFUND_FAILED, code = "REFUND_FAILED"))
     }
 
     @ExceptionHandler(InvalidBookingRequestException::class)
@@ -180,7 +181,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("INVALID_BOOKING_REQUEST: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse(error = ex.message ?: "Invalid booking request", code = "INVALID_BOOKING_REQUEST"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.Booking.INVALID_REQUEST, code = "INVALID_BOOKING_REQUEST"))
     }
 
     // Card order exceptions
@@ -192,7 +193,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("CARD_ORDER_NOT_FOUND: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
-            .body(ErrorResponse(error = ex.message ?: "Card order not found", code = "CARD_ORDER_NOT_FOUND"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.CardOrder.NOT_FOUND, code = "CARD_ORDER_NOT_FOUND"))
     }
 
     @ExceptionHandler(DuplicateSampleOrderException::class)
@@ -202,7 +203,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("DUPLICATE_SAMPLE_ORDER: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.CONFLICT)
-            .body(ErrorResponse(error = ex.message ?: "Duplicate sample order", code = "DUPLICATE_SAMPLE_ORDER"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.CardOrder.DUPLICATE_SAMPLE, code = "DUPLICATE_SAMPLE_ORDER"))
     }
 
     @ExceptionHandler(InvalidOrderQuantityException::class)
@@ -212,7 +213,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("INVALID_ORDER_QUANTITY: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse(error = ex.message ?: "Invalid order quantity", code = "INVALID_ORDER_QUANTITY"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.CardOrder.INVALID_QUANTITY, code = "INVALID_ORDER_QUANTITY"))
     }
 
     @ExceptionHandler(InvalidOrderStatusTransitionException::class)
@@ -222,7 +223,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("INVALID_ORDER_STATUS_TRANSITION: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse(error = ex.message ?: "Invalid order status transition", code = "INVALID_ORDER_STATUS_TRANSITION"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.CardOrder.INVALID_STATUS_TRANSITION, code = "INVALID_ORDER_STATUS_TRANSITION"))
     }
 
     // Card review exceptions
@@ -234,7 +235,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("REVIEW_NOT_ELIGIBLE: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.FORBIDDEN)
-            .body(ErrorResponse(error = ex.message ?: "Not eligible to review this card", code = "REVIEW_NOT_ELIGIBLE"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.CardReview.NOT_ELIGIBLE, code = "REVIEW_NOT_ELIGIBLE"))
     }
 
     @ExceptionHandler(DuplicateReviewException::class)
@@ -244,7 +245,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("DUPLICATE_REVIEW: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.CONFLICT)
-            .body(ErrorResponse(error = ex.message ?: "A review already exists for this order", code = "DUPLICATE_REVIEW"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.CardReview.DUPLICATE, code = "DUPLICATE_REVIEW"))
     }
 
     @ExceptionHandler(InvalidRatingException::class)
@@ -254,7 +255,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("INVALID_RATING: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse(error = ex.message ?: "Invalid rating value", code = "INVALID_RATING"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.CardReview.INVALID_RATING, code = "INVALID_RATING"))
     }
 
     // Favourite exceptions
@@ -266,7 +267,31 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("INVALID_ITEM_TYPE: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse(error = ex.message ?: "Invalid item type", code = "INVALID_ITEM_TYPE"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.General.INVALID_ITEM_TYPE, code = "INVALID_ITEM_TYPE"))
+    }
+
+    // Portfolio exceptions
+
+    @ExceptionHandler(PortfolioLimitExceededException::class)
+    fun handlePortfolioLimitExceeded(
+        ex: PortfolioLimitExceededException,
+        request: HttpServletRequest
+    ): ResponseEntity<ErrorResponse> {
+        logger.warn("PORTFOLIO_LIMIT_EXCEEDED: {} {}", request.method, request.requestURI)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.Upload.PORTFOLIO_LIMIT, code = "PORTFOLIO_LIMIT_EXCEEDED"))
+    }
+
+    // Pricing exceptions
+
+    @ExceptionHandler(InvalidPricingException::class)
+    fun handleInvalidPricing(
+        ex: InvalidPricingException,
+        request: HttpServletRequest
+    ): ResponseEntity<ErrorResponse> {
+        logger.warn("INVALID_PRICING: {} {}", request.method, request.requestURI)
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.Validation.INVALID_PRICING, code = "INVALID_PRICING"))
     }
 
     // Spring / upload exceptions
@@ -279,7 +304,7 @@ class GlobalExceptionHandler {
         val fields = ex.bindingResult.fieldErrors.joinToString(", ") { "${it.field}: ${it.defaultMessage}" }
         logger.warn("VALIDATION_ERROR: {} {} - {}", request.method, request.requestURI, fields)
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse(error = "Validation failed: $fields", code = "VALIDATION_ERROR"))
+            .body(ErrorResponse(error = BackendMessages.Validation.validationFailed(fields), code = "VALIDATION_ERROR"))
     }
 
     @ExceptionHandler(HttpMessageNotReadableException::class)
@@ -289,7 +314,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("MALFORMED_REQUEST: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse(error = "Request body could not be parsed", code = "MALFORMED_REQUEST"))
+            .body(ErrorResponse(error = BackendMessages.General.MALFORMED_REQUEST, code = "MALFORMED_REQUEST"))
     }
 
     @ExceptionHandler(MaxUploadSizeExceededException::class)
@@ -299,7 +324,7 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.warn("FILE_TOO_LARGE: {} {}", request.method, request.requestURI)
         return ResponseEntity.status(HttpStatus.BAD_REQUEST)
-            .body(ErrorResponse(error = "File size exceeds the 5 MB limit", code = "FILE_TOO_LARGE"))
+            .body(ErrorResponse(error = BackendMessages.Upload.FILE_TOO_LARGE, code = "FILE_TOO_LARGE"))
     }
 
     // Catch-all handler
@@ -307,7 +332,7 @@ class GlobalExceptionHandler {
     @ExceptionHandler(RateLimitExceededException::class)
     fun handleRateLimit(ex: RateLimitExceededException): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
-            .body(ErrorResponse(error = ex.message ?: "Too many requests", code = "RATE_LIMIT_EXCEEDED"))
+            .body(ErrorResponse(error = ex.message ?: BackendMessages.General.RATE_LIMITED, code = "RATE_LIMIT_EXCEEDED"))
     }
 
     @ExceptionHandler(Exception::class)
@@ -317,6 +342,6 @@ class GlobalExceptionHandler {
     ): ResponseEntity<ErrorResponse> {
         logger.error("INTERNAL_ERROR: {} {} - {}", request.method, request.requestURI, ex.message, ex)
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-            .body(ErrorResponse(error = "An unexpected error occurred", code = "INTERNAL_ERROR"))
+            .body(ErrorResponse(error = BackendMessages.General.UNEXPECTED_ERROR, code = "INTERNAL_ERROR"))
     }
 }

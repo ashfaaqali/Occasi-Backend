@@ -1,5 +1,7 @@
 package com.occasi.application.controller
 
+import com.occasi.application.constants.BackendMessages
+import com.occasi.application.constants.BackendRoutes
 import com.occasi.application.dto.ArtistRegistrationRequest
 import com.occasi.application.service.HennaArtistService
 import jakarta.servlet.http.HttpServletRequest
@@ -8,7 +10,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 
 @RestController
-@RequestMapping("/henna-artists")
+@RequestMapping(BackendRoutes.HennaArtists.BASE)
 class HennaArtistController(private val service: HennaArtistService) {
 
     @GetMapping
@@ -38,20 +40,20 @@ class HennaArtistController(private val service: HennaArtistService) {
             .body(artists)
     }
 
-    @GetMapping("/{id}")
+    @GetMapping(BackendRoutes.HennaArtists.BY_ID)
     fun getArtistById(@PathVariable id: Long): ResponseEntity<Any> {
         val artist = service.getArtistById(id)
         return if (artist != null) {
             ResponseEntity.ok(artist)
         } else {
-            ResponseEntity.status(404).body(mapOf("error" to "Henna artist with id $id not found"))
+            ResponseEntity.status(404).body(mapOf("error" to "${BackendMessages.Artist.NOT_FOUND}: $id"))
         }
     }
 
     @PostMapping
     fun registerArtist(@RequestBody request: ArtistRegistrationRequest): ResponseEntity<Any> {
         if (request.name.isBlank() || request.email.isBlank() || request.mobileNumber.isBlank()) {
-            return ResponseEntity.badRequest().body(mapOf("error" to "Name, email, and mobile number are required"))
+            return ResponseEntity.badRequest().body(mapOf("error" to BackendMessages.Validation.NAME_EMAIL_PHONE_REQUIRED))
         }
         val artist = service.registerArtist(request)
         return ResponseEntity.status(201).body(artist)

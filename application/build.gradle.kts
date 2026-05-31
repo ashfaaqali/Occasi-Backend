@@ -32,6 +32,7 @@ dependencies {
 	implementation("com.google.api-client:google-api-client:2.7.2")
 	runtimeOnly("com.h2database:h2")
 	implementation("org.flywaydb:flyway-core")
+	implementation("org.flywaydb:flyway-database-postgresql")
 	runtimeOnly("org.postgresql:postgresql")
 	implementation("com.bucket4j:bucket4j_jdk17-core:8.19.0")
 	implementation("com.razorpay:razorpay-java:1.4.6")

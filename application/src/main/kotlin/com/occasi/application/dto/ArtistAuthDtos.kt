@@ -30,7 +30,6 @@ data class ArtistRegisterRequest(
     val cityName: String? = null,
     val location: String? = null,
     val coverImage: String? = null,
-    val portfolioImageUrls: List<String> = emptyList(),
     val pricingTiers: Map<String, Int>? = null
 )
 
@@ -44,6 +43,22 @@ data class SendPhoneOtpRequest(val phone: String)
 data class VerifyPhoneOtpRequest(val phone: String, val otp: String)
 data class ArtistRefreshTokenRequest(val refreshToken: String)
 data class ArtistLogoutRequest(val refreshToken: String)
+
+data class ForgotPasswordRequest(
+    @field:NotBlank(message = "Email is required")
+    @field:Email(message = "Invalid email format")
+    val email: String
+)
+
+data class ResetPasswordRequest(
+    @field:NotBlank(message = "Email is required")
+    @field:Email(message = "Invalid email format")
+    val email: String,
+    @field:NotBlank(message = "OTP is required")
+    val otp: String,
+    @field:Size(min = 8, max = 128, message = "Password must be between 8 and 128 characters")
+    val newPassword: String
+)
 
 // Responses
 data class ArtistAuthResponse(

@@ -1,5 +1,6 @@
 package com.occasi.application.service
 
+import com.occasi.application.constants.BackendMessages
 import com.occasi.application.dto.ArtistAuthResponse
 import com.occasi.application.dto.ArtistDto
 import com.occasi.application.dto.ArtistRegisterRequest
@@ -7,7 +8,6 @@ import com.occasi.application.dto.TokenResponse
 import com.occasi.application.exception.DuplicateArtistEmailException
 import com.occasi.application.exception.InvalidArtistCredentialsException
 import com.occasi.application.exception.InvalidArtistRefreshTokenException
-import com.occasi.application.model.ArtistPortfolioImage
 import com.occasi.application.model.ArtistPricing
 import com.occasi.application.model.ArtistRefreshToken
 import com.occasi.application.model.ComplexityTier
@@ -45,7 +45,7 @@ class ArtistAuthService(
 
     @Transactional
     fun registerArtist(request: ArtistRegisterRequest): ArtistAuthResponse {
-        require(request.password.length >= 8) { "Password must be at least 8 characters" }
+        require(request.password.length >= 8) { BackendMessages.Validation.PASSWORD_MIN_LENGTH }
 
         if (hennaArtistRepository.findByEmail(request.email) != null) {
             throw DuplicateArtistEmailException()
@@ -63,11 +63,6 @@ class ArtistAuthService(
             coverImage = request.coverImage,
             passwordHash = passwordEncoder.encode(request.password)
         )
-
-        val portfolioImages = request.portfolioImageUrls.map { url ->
-            ArtistPortfolioImage(imageUrl = url).also { it.artist = artist }
-        }
-        artist.portfolioImages = portfolioImages
 
         val savedArtist = hennaArtistRepository.save(artist)
 
@@ -130,6 +125,30 @@ class ArtistAuthService(
     @Transactional
     fun logout(refreshToken: String) {
         artistRefreshTokenRepository.deleteByToken(refreshToken)
+    }
+
+    fun forgotPassword(email: String) {
+        val artist = hennaArtistRepository.findByEmail(email)
+        if (artist != null) {
+            otpService.generateAndSend(email)
+        }
+        // Always return without error (anti-enumeration)
+    }
+
+    @Transactional
+    fun resetPassword(email: String, otp: String, newPassword: String) {
+        require(newPassword.length in 8..128) { "Password must be between 8 and 128 characters" }
+
+        otpService.verify(email, otp)
+
+        val artist = hennaArtistRepository.findByEmail(email)
+            ?: throw IllegalArgumentException("Invalid or expired OTP")
+
+        artist.passwordHash = passwordEncoder.encode(newPassword)
+        hennaArtistRepository.save(artist)
+
+        // Invalidate all refresh tokens (force re-login)
+        artistRefreshTokenRepository.deleteByArtistId(artist.id!!)
     }
 
     private fun generateArtistAuthResponse(artist: HennaArtist): ArtistAuthResponse {

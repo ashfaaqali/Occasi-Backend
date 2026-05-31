@@ -2,19 +2,23 @@ package com.occasi.application.model
 
 import com.fasterxml.jackson.annotation.JsonBackReference
 import jakarta.persistence.*
+import org.hibernate.annotations.OnDelete
+import org.hibernate.annotations.OnDeleteAction
 
 @Entity
-@Table(uniqueConstraints = [UniqueConstraint(columnNames = ["artist_id", "complexity"])])
+@Table(uniqueConstraints = [UniqueConstraint(columnNames = ["artist_id", "complexity_tier"])])
 data class ArtistPricing(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "artist_id", nullable = false)
+    @OnDelete(action = OnDeleteAction.CASCADE)
     @JsonBackReference("artist-pricing")
     var artist: HennaArtist,
 
     @Enumerated(EnumType.STRING)
+    @Column(name = "complexity_tier")
     var complexity: ComplexityTier,
 
     var price: Int
