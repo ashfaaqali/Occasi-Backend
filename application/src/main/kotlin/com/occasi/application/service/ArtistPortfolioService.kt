@@ -4,6 +4,7 @@ import com.occasi.application.constants.BackendMessages
 import com.occasi.application.model.ArtistPortfolioImage
 import com.occasi.application.repository.ArtistPortfolioImageRepository
 import com.occasi.application.repository.HennaArtistRepository
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -18,6 +19,7 @@ class ArtistPortfolioService(
     }
 
     @Transactional
+    @CacheEvict(value = ["hennaArtists", "artistDetail"], allEntries = true)
     fun associateImages(artistId: Long, imageUrls: List<String>): Int {
         val currentCount = portfolioImageRepository.countByArtistId(artistId)
 

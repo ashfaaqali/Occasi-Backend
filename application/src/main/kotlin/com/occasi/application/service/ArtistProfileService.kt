@@ -2,6 +2,7 @@ package com.occasi.application.service
 
 import com.occasi.application.constants.BackendMessages
 import com.occasi.application.repository.HennaArtistRepository
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -11,6 +12,7 @@ class ArtistProfileService(
 ) {
 
     @Transactional
+    @CacheEvict(value = ["hennaArtists", "artistDetail"], allEntries = true)
     fun updateCoverImage(artistId: Long, coverImageUrl: String): String {
         val artist = hennaArtistRepository.findById(artistId)
             .orElseThrow { IllegalArgumentException(BackendMessages.Artist.NOT_FOUND) }

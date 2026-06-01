@@ -5,6 +5,7 @@ import com.occasi.application.model.ArtistPricing
 import com.occasi.application.model.ComplexityTier
 import com.occasi.application.repository.ArtistPricingRepository
 import com.occasi.application.repository.HennaArtistRepository
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -15,6 +16,7 @@ class ArtistPricingService(
 ) {
 
     @Transactional
+    @CacheEvict(value = ["hennaArtists", "artistDetail"], allEntries = true)
     fun updatePricing(artistId: Long, pricingTiers: Map<String, Int>): Int {
         // Validate all values are positive
         if (pricingTiers.values.any { it <= 0 }) {

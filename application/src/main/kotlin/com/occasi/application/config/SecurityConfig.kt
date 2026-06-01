@@ -37,7 +37,15 @@ class SecurityConfig {
             .authorizeHttpRequests { auth ->
                 auth
                     .requestMatchers("/auth/**").permitAll()
-                    .requestMatchers("/artist-auth/**").permitAll()
+                    .requestMatchers("/artist-auth/login").permitAll()
+                    .requestMatchers("/artist-auth/register").permitAll()
+                    .requestMatchers("/artist-auth/send-email-otp").permitAll()
+                    .requestMatchers("/artist-auth/verify-email-otp").permitAll()
+                    .requestMatchers("/artist-auth/send-phone-otp").permitAll()
+                    .requestMatchers("/artist-auth/verify-phone-otp").permitAll()
+                    .requestMatchers("/artist-auth/refresh").permitAll()
+                    .requestMatchers("/artist-auth/forgot-password").permitAll()
+                    .requestMatchers("/artist-auth/reset-password").permitAll()
                     .requestMatchers("/h2-console/**").permitAll()
                     .requestMatchers("/designs/**").permitAll()
                     .requestMatchers("/invitation-cards/**").permitAll()

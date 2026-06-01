@@ -15,9 +15,23 @@ class JwtAuthFilter(
     private val jwtService: JwtService
 ) : OncePerRequestFilter() {
 
+    private val publicArtistAuthPaths = setOf(
+        "/artist-auth/login",
+        "/artist-auth/register",
+        "/artist-auth/send-email-otp",
+        "/artist-auth/verify-email-otp",
+        "/artist-auth/send-phone-otp",
+        "/artist-auth/verify-phone-otp",
+        "/artist-auth/refresh",
+        "/artist-auth/forgot-password",
+        "/artist-auth/reset-password"
+    )
+
     override fun shouldNotFilter(request: HttpServletRequest): Boolean {
         val path = request.servletPath
-        return path.startsWith("/auth/") || path.startsWith("/artist-auth/") || path.startsWith("/h2-console/")
+        return path.startsWith("/auth/") ||
+            path in publicArtistAuthPaths ||
+            path.startsWith("/h2-console/")
     }
 
     override fun doFilterInternal(
