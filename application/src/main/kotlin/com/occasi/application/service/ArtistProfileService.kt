@@ -22,4 +22,14 @@ class ArtistProfileService(
 
         return coverImageUrl
     }
+
+    @Transactional
+    fun submitKycDocuments(artistId: Long, idFrontUrl: String, idBackUrl: String) {
+        val artist = hennaArtistRepository.findById(artistId)
+            .orElseThrow { IllegalArgumentException(BackendMessages.Artist.NOT_FOUND) }
+
+        artist.idFrontUrl = idFrontUrl
+        artist.idBackUrl = idBackUrl
+        hennaArtistRepository.save(artist)
+    }
 }

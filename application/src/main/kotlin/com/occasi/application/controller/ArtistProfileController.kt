@@ -2,6 +2,7 @@ package com.occasi.application.controller
 
 import com.occasi.application.constants.BackendRoutes
 import com.occasi.application.dto.CoverImageResponse
+import com.occasi.application.dto.SubmitKycRequest
 import com.occasi.application.dto.UpdateCoverImageRequest
 import com.occasi.application.service.ArtistProfileService
 import jakarta.validation.Valid
@@ -25,5 +26,15 @@ class ArtistProfileController(
         return ResponseEntity.ok(
             CoverImageResponse(message = "Cover image updated", coverImageUrl = coverImageUrl)
         )
+    }
+
+    @PostMapping("/kyc")
+    fun submitKyc(
+        @Valid @RequestBody request: SubmitKycRequest,
+        authentication: Authentication
+    ): ResponseEntity<Map<String, String>> {
+        val artistId = authentication.principal as Long
+        artistProfileService.submitKycDocuments(artistId, request.idFrontUrl, request.idBackUrl)
+        return ResponseEntity.ok(mapOf("message" to "KYC documents submitted for review"))
     }
 }

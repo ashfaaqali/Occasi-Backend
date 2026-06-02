@@ -20,7 +20,14 @@ data class HennaArtist(
     var coverImage: String? = null,
     var startingPrice: Int = 0,
     var passwordHash: String? = null,
-    var updatedAt: Instant = Instant.now()
+    var updatedAt: Instant = Instant.now(),
+
+    // KYC / ID verification
+    @Column(columnDefinition = "TEXT")
+    var idFrontUrl: String? = null,
+    @Column(columnDefinition = "TEXT")
+    var idBackUrl: String? = null,
+    var isVerified: Boolean = false
 ) {
     @OneToMany(mappedBy = "artist", cascade = [CascadeType.ALL], orphanRemoval = true)
     @JsonManagedReference("artist-portfolio")

@@ -11,3 +11,10 @@ data class CoverImageResponse(
     val message: String,
     val coverImageUrl: String
 )
+
+data class SubmitKycRequest(
+    @field:NotBlank(message = "idFrontUrl must not be blank")
+    val idFrontUrl: String,
+    @field:NotBlank(message = "idBackUrl must not be blank")
+    val idBackUrl: String
+)
