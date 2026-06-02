@@ -20,10 +20,16 @@ class HennaArtistService(
     @Cacheable("hennaArtists")
     fun getAllHennaArtists(): List<HennaArtist> = repository.findAll()
 
+    @Cacheable("hennaArtistsByCity", key = "#city")
+    fun getArtistsByCity(city: String): List<HennaArtist> = repository.findByCityNameIgnoreCase(city)
+
+    @Cacheable("availableCities")
+    fun getAvailableCities(): List<String> = repository.findDistinctCityNames()
+
     @Cacheable("artistDetail", key = "#id")
     fun getArtistById(id: Long): HennaArtist? = repository.findById(id).orElse(null)
 
-    @CacheEvict(value = ["hennaArtists", "artistDetail"], allEntries = true)
+    @CacheEvict(value = ["hennaArtists", "hennaArtistsByCity", "availableCities", "artistDetail"], allEntries = true)
     fun registerArtist(request: ArtistRegistrationRequest): HennaArtist {
         val artist = HennaArtist(
             name = request.name,

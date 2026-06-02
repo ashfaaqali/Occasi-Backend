@@ -16,6 +16,7 @@ class HennaArtistController(private val service: HennaArtistService) {
     @GetMapping
     fun getAllHennaArtists(
         @RequestParam complexity: String?,
+        @RequestParam city: String?,
         request: HttpServletRequest
     ): ResponseEntity<Any> {
         if (complexity != null) {
@@ -26,7 +27,12 @@ class HennaArtistController(private val service: HennaArtistService) {
             }
         }
 
-        val artists = service.getAllHennaArtists()
+        val artists = if (city != null) {
+            service.getArtistsByCity(city)
+        } else {
+            service.getAllHennaArtists()
+        }
+
         val lastModified = artists.maxOfOrNull { it.updatedAt }
 
         // Check If-Modified-Since

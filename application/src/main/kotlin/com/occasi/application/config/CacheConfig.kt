@@ -13,6 +13,8 @@ class CacheConfig {
     @Bean
     fun cacheManager(): CacheManager = ConcurrentMapCacheManager(
         "hennaArtists",
+        "hennaArtistsByCity",
+        "availableCities",
         "hennaDesigns",
         "invitationCards",
         "artistDetail",
