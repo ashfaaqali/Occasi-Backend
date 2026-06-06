@@ -53,6 +53,33 @@ class BookingController(private val bookingService: BookingService) {
         return ResponseEntity.ok(response)
     }
 
+    @PutMapping(BackendRoutes.Bookings.UPDATE_DESIGN)
+    fun updateBookingDesign(
+        @PathVariable id: Long,
+        @RequestParam designId: Long
+    ): ResponseEntity<BookingResponse> {
+        val response = bookingService.updateBookingDesign(id, designId)
+        return ResponseEntity.ok(response)
+    }
+
+    @PostMapping(BackendRoutes.Bookings.VERIFY_DIFF_PAYMENT)
+    fun verifyDifferencePayment(
+        @PathVariable id: Long,
+        @Valid @RequestBody request: VerifyPaymentRequest
+    ): ResponseEntity<BookingResponse> {
+        val response = bookingService.verifyDifferencePayment(id, request.razorpayPaymentId, request.razorpayOrderId, request.razorpaySignature)
+        return ResponseEntity.ok(response)
+    }
+
+    @PostMapping(BackendRoutes.Bookings.COMPLETE)
+    fun completeBookingWithProof(
+        @PathVariable id: Long,
+        @Valid @RequestBody request: CompleteBookingRequest
+    ): ResponseEntity<BookingResponse> {
+        val response = bookingService.completeBookingWithProof(id, request.imageUrl, request.addToPortfolio)
+        return ResponseEntity.ok(response)
+    }
+
     @GetMapping(BackendRoutes.Bookings.BY_ID)
     fun getBooking(@PathVariable id: Long): ResponseEntity<BookingResponse> {
         val response = bookingService.getBooking(id)

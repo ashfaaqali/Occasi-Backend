@@ -50,5 +50,9 @@ data class Booking(
     var cancellationReason: String? = null,
 
     @Enumerated(EnumType.STRING)
-    var cancelledBy: CancelledBy? = null
+    var cancelledBy: CancelledBy? = null,
+
+    var completedWorkImageUrl: String? = null,
+    var razorpayDiffOrderId: String? = null,
+    var razorpayDiffPaymentId: String? = null
 )

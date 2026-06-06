@@ -35,6 +35,9 @@ object BackendRoutes {
         const val STATUS = "/{id}/status"
         const val BY_USER = "/user/{userId}"
         const val BY_ARTIST = "/artist/{artistId}"
+        const val UPDATE_DESIGN = "/{id}/design"
+        const val VERIFY_DIFF_PAYMENT = "/{id}/verify-diff-payment"
+        const val COMPLETE = "/{id}/complete"
     }
 
     object HennaArtists {

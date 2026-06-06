@@ -6,6 +6,7 @@ import com.occasi.application.dto.CreateBookingRequest
 import com.occasi.application.exception.*
 import com.occasi.application.model.*
 import com.occasi.application.repository.ArtistPricingRepository
+import com.occasi.application.repository.ArtistPortfolioImageRepository
 import com.occasi.application.repository.BookingRepository
 import com.occasi.application.repository.HennaArtistRepository
 import com.occasi.application.repository.HennaDesignRepository
@@ -24,6 +25,7 @@ class BookingService(
     private val artistRepository: HennaArtistRepository,
     private val designRepository: HennaDesignRepository,
     private val artistPricingRepository: ArtistPricingRepository,
+    private val portfolioImageRepository: ArtistPortfolioImageRepository,
     private val razorpayService: RazorpayService,
     private val cancellationEngine: CancellationEngine
 ) {
@@ -180,6 +182,102 @@ class BookingService(
             .map { toBookingResponse(it) }
     }
 
+    @CacheEvict(value = ["userBookings"], allEntries = true)
+    fun updateBookingDesign(bookingId: Long, newDesignId: Long): BookingResponse {
+        val booking = bookingRepository.findById(bookingId)
+            .orElseThrow { BookingNotFoundException(BackendMessages.Booking.NOT_FOUND) }
+
+        if (booking.bookingStatus != BookingStatus.CONFIRMED && booking.bookingStatus != BookingStatus.IN_PROGRESS) {
+            throw InvalidStatusTransitionException("Cannot change design on a booking that is not confirmed or in progress")
+        }
+
+        val newDesign = designRepository.findById(newDesignId)
+            .orElseThrow { BookingNotFoundException("Design not found") }
+
+        val newPrice = resolveBookingPrice(booking.artist.id!!, newDesignId)
+        val oldPrice = booking.price
+
+        booking.design = newDesign
+
+        if (newPrice < oldPrice) {
+            // Cheaper design
+            val difference = oldPrice - newPrice
+            booking.price = newPrice
+            if (booking.paymentMethod == PaymentMethod.ONLINE && booking.paymentStatus == PaymentStatus.PAID) {
+                try {
+                    val refundId = razorpayService.initiateRefund(booking.razorpayPaymentId!!, difference * 100)
+                    booking.refundId = refundId
+                    booking.refundAmount = (booking.refundAmount ?: 0) + difference
+                    booking.paymentStatus = PaymentStatus.REFUND_INITIATED
+                } catch (e: Exception) {
+                    logger.error("Failed to process refund for cheaper design update", e)
+                }
+            }
+        } else if (newPrice > oldPrice) {
+            // More expensive design
+            val difference = newPrice - oldPrice
+            booking.price = newPrice
+            if (booking.paymentMethod == PaymentMethod.ONLINE && booking.paymentStatus == PaymentStatus.PAID) {
+                try {
+                    val orderId = razorpayService.createOrder(difference * 100, bookingId)
+                    booking.razorpayDiffOrderId = orderId
+                    booking.paymentStatus = PaymentStatus.PENDING_DIFFERENCE
+                } catch (e: Exception) {
+                    throw RuntimeException("Failed to generate Razorpay order for design upgrade price difference", e)
+                }
+            }
+        }
+
+        return toBookingResponse(bookingRepository.save(booking))
+    }
+
+    @CacheEvict(value = ["userBookings"], allEntries = true)
+    fun verifyDifferencePayment(bookingId: Long, paymentId: String, orderId: String, signature: String): BookingResponse {
+        val booking = bookingRepository.findById(bookingId)
+            .orElseThrow { BookingNotFoundException(BackendMessages.Booking.NOT_FOUND) }
+
+        if (booking.paymentStatus != PaymentStatus.PENDING_DIFFERENCE) {
+            throw InvalidStatusTransitionException("No pending price difference payment for this booking")
+        }
+
+        val isValid = razorpayService.verifySignature(orderId, paymentId, signature)
+        if (!isValid) {
+            throw PaymentVerificationException(BackendMessages.Booking.PAYMENT_VERIFICATION_FAILED)
+        }
+
+        booking.paymentStatus = PaymentStatus.PAID
+        booking.razorpayDiffPaymentId = paymentId
+        return toBookingResponse(bookingRepository.save(booking))
+    }
+
+    @CacheEvict(value = ["userBookings"], allEntries = true)
+    fun completeBookingWithProof(bookingId: Long, imageUrl: String, addToPortfolio: Boolean): BookingResponse {
+        val booking = bookingRepository.findById(bookingId)
+            .orElseThrow { BookingNotFoundException(BackendMessages.Booking.NOT_FOUND) }
+
+        if (booking.bookingStatus != BookingStatus.IN_PROGRESS && booking.bookingStatus != BookingStatus.CONFIRMED) {
+            throw InvalidStatusTransitionException("Booking must be confirmed or in progress to complete")
+        }
+
+        if (booking.paymentStatus == PaymentStatus.PENDING_DIFFERENCE) {
+            throw InvalidStatusTransitionException("Cannot complete booking while difference payment is pending")
+        }
+
+        booking.completedWorkImageUrl = imageUrl
+        booking.bookingStatus = BookingStatus.COMPLETED
+
+        if (addToPortfolio) {
+            val portfolioImage = ArtistPortfolioImage(
+                imageUrl = imageUrl
+            ).apply {
+                artist = booking.artist
+            }
+            portfolioImageRepository.save(portfolioImage)
+        }
+
+        return toBookingResponse(bookingRepository.save(booking))
+    }
+
     private fun toBookingResponse(booking: Booking): BookingResponse {
         return BookingResponse(
             id = booking.id!!,
@@ -200,7 +298,10 @@ class BookingService(
             refundAmount = booking.refundAmount,
             cancellationReason = booking.cancellationReason,
             cancelledBy = booking.cancelledBy?.name,
-            bookingDate = booking.bookingDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+            bookingDate = booking.bookingDate.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
+            completedWorkImageUrl = booking.completedWorkImageUrl,
+            razorpayDiffOrderId = booking.razorpayDiffOrderId,
+            razorpayDiffPaymentId = booking.razorpayDiffPaymentId
         )
     }
 }

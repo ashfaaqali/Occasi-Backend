@@ -4,6 +4,7 @@ import com.occasi.application.dto.CreateBookingRequest
 import com.occasi.application.exception.*
 import com.occasi.application.model.*
 import com.occasi.application.repository.ArtistPricingRepository
+import com.occasi.application.repository.ArtistPortfolioImageRepository
 import com.occasi.application.repository.BookingRepository
 import com.occasi.application.repository.HennaArtistRepository
 import com.occasi.application.repository.HennaDesignRepository
@@ -44,9 +45,10 @@ class BookingServicePropertyTest : StringSpec({
         artistRepo: HennaArtistRepository = mock(),
         designRepo: HennaDesignRepository = mock(),
         artistPricingRepo: ArtistPricingRepository = mock(),
+        portfolioImageRepo: ArtistPortfolioImageRepository = mock(),
         razorpayService: RazorpayService = mock(),
         cancellationEngine: CancellationEngine = mock()
-    ) = BookingService(bookingRepo, userRepo, artistRepo, designRepo, artistPricingRepo, razorpayService, cancellationEngine)
+    ) = BookingService(bookingRepo, userRepo, artistRepo, designRepo, artistPricingRepo, portfolioImageRepo, razorpayService, cancellationEngine)
 
     // Arb generators
     val arbNonBlank = Arb.string(1..30).filter { it.isNotBlank() }

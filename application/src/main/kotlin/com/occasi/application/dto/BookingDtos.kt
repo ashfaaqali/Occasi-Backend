@@ -60,5 +60,14 @@ data class BookingResponse(
     val refundAmount: Int?,
     val cancellationReason: String?,
     val cancelledBy: String?,
-    val bookingDate: String
+    val bookingDate: String,
+    val completedWorkImageUrl: String? = null,
+    val razorpayDiffOrderId: String? = null,
+    val razorpayDiffPaymentId: String? = null
+)
+
+data class CompleteBookingRequest(
+    @field:NotBlank(message = "Image URL is required")
+    val imageUrl: String,
+    val addToPortfolio: Boolean = false
 )
