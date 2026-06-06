@@ -23,6 +23,7 @@ class JwtAuthFilter(
         "/artist-auth/send-phone-otp",
         "/artist-auth/verify-phone-otp",
         "/artist-auth/refresh",
+        "/artist-auth/logout",
         "/artist-auth/forgot-password",
         "/artist-auth/reset-password"
     )

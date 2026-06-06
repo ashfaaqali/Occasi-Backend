@@ -44,6 +44,7 @@ class SecurityConfig {
                     .requestMatchers("/artist-auth/send-phone-otp").permitAll()
                     .requestMatchers("/artist-auth/verify-phone-otp").permitAll()
                     .requestMatchers("/artist-auth/refresh").permitAll()
+                    .requestMatchers("/artist-auth/logout").permitAll()
                     .requestMatchers("/artist-auth/forgot-password").permitAll()
                     .requestMatchers("/artist-auth/reset-password").permitAll()
                     .requestMatchers("/h2-console/**").permitAll()

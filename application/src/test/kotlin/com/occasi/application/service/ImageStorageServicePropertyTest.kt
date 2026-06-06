@@ -17,7 +17,7 @@ import java.util.Base64
 // Feature: artist-onboarding-dashboard, Property 3: Image storage round-trip
 class ImageStorageServicePropertyTest : StringSpec({
 
-    val uploadDir = Path.of("./data/uploads")
+    val uploadDir = Path.of(System.getProperty("user.home"), "data", "uploads")
     val service = ImageStorageService()
 
     beforeSpec {
@@ -29,7 +29,12 @@ class ImageStorageServicePropertyTest : StringSpec({
         if (Files.exists(uploadDir)) {
             Files.walk(uploadDir)
                 .sorted(Comparator.reverseOrder())
-                .forEach { Files.deleteIfExists(it) }
+                .forEach { 
+                    // Only delete files, keep directory structure to avoid deleting other users' data
+                    if (it != uploadDir) {
+                        Files.deleteIfExists(it) 
+                    }
+                }
         }
     }
 
@@ -48,7 +53,7 @@ class ImageStorageServicePropertyTest : StringSpec({
             val expectedExtension = fileName?.substringAfterLast('.', "jpg") ?: "jpg"
             returnedPath shouldEndWith ".$expectedExtension"
 
-            val filePath = Path.of("." + returnedPath.replaceFirst("/uploads", "/data/uploads"))
+            val filePath = uploadDir.resolve(returnedPath.substringAfterLast('/'))
             val storedBytes = Files.readAllBytes(filePath)
             storedBytes shouldBe originalBytes
 

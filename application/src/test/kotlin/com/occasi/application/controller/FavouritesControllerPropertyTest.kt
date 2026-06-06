@@ -145,6 +145,8 @@ class FavouritesControllerPropertyTest : StringSpec() {
                 // First, get the current favourites list
                 val getResult = mockMvc.perform(
                     get("/api/favourites")
+                        .requestAttr("org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY",
+                            SecurityContextHolder.getContext())
                         .with { request ->
                             request.userPrincipal = SecurityContextHolder.getContext().authentication
                             request
@@ -165,6 +167,8 @@ class FavouritesControllerPropertyTest : StringSpec() {
                     delete("/api/favourites")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(objectMapper.writeValueAsString(requestBody))
+                        .requestAttr("org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY",
+                            SecurityContextHolder.getContext())
                         .with { request ->
                             request.userPrincipal = SecurityContextHolder.getContext().authentication
                             request
@@ -175,6 +179,8 @@ class FavouritesControllerPropertyTest : StringSpec() {
                 // Verify favourites list is unchanged
                 val getResultAfter = mockMvc.perform(
                     get("/api/favourites")
+                        .requestAttr("org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY",
+                            SecurityContextHolder.getContext())
                         .with { request ->
                             request.userPrincipal = SecurityContextHolder.getContext().authentication
                             request

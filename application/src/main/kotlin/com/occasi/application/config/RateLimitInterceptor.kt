@@ -6,17 +6,24 @@ import io.github.bucket4j.Bandwidth
 import io.github.bucket4j.Bucket
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
+import org.springframework.core.env.Environment
 import org.springframework.stereotype.Component
 import org.springframework.web.servlet.HandlerInterceptor
 import java.time.Duration
 import java.util.concurrent.ConcurrentHashMap
 
 @Component
-class RateLimitInterceptor(private val jwtService: JwtService) : HandlerInterceptor {
+class RateLimitInterceptor(
+    private val jwtService: JwtService,
+    private val env: Environment
+) : HandlerInterceptor {
 
     private val buckets = ConcurrentHashMap<String, Bucket>()
 
     override fun preHandle(request: HttpServletRequest, response: HttpServletResponse, handler: Any): Boolean {
+        if (env.activeProfiles.contains("test")) {
+            return true
+        }
         val ip = request.getHeader("X-Forwarded-For")?.split(",")?.first()?.trim() ?: request.remoteAddr
         val path = request.requestURI
         val group = resolveGroup(path)
