@@ -80,6 +80,7 @@ def main():
     images_dir = sys.argv[3] if len(sys.argv) > 3 else "./images"
     
     designs_json_path = os.path.join(images_dir, "designs.json")
+    designs_csv_path = os.path.join(images_dir, "designs.csv")
     cards_json_path = os.path.join(images_dir, "cards.json")
     
     print(f"Starting upload process to target: {base_url}")
@@ -87,15 +88,40 @@ def main():
     print(f"X-Admin-Key: {'***' + api_key[-4:] if len(api_key) > 4 else '***'}")
     
     # 1. Upload Henna Designs
-    if os.path.exists(designs_json_path):
-        print("\n--- Uploading Henna Designs ---")
+    designs = []
+    if os.path.exists(designs_csv_path):
+        print(f"\n--- Loading Henna Designs from CSV '{designs_csv_path}' ---")
+        import csv
         try:
-            with open(designs_json_path, 'r') as f:
+            with open(designs_csv_path, 'r', encoding='utf-8') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    image_file = row.get("filename") or row.get("image") or row.get("file")
+                    name = row.get("name") or row.get("title")
+                    price = row.get("price")
+                    complexity = row.get("complexity")
+                    tags = row.get("tags")
+                    
+                    if name and image_file:
+                        designs.append({
+                            "name": name.strip(),
+                            "image": image_file.strip(),
+                            "price": price,
+                            "complexity": complexity.strip() if complexity else "Simple",
+                            "tags": tags.strip() if tags else ""
+                        })
+        except Exception as e:
+            print(f"Error loading {designs_csv_path}: {e}")
+    elif os.path.exists(designs_json_path):
+        print(f"\n--- Loading Henna Designs from JSON '{designs_json_path}' ---")
+        try:
+            with open(designs_json_path, 'r', encoding='utf-8') as f:
                 designs = json.load(f)
         except Exception as e:
             print(f"Error loading {designs_json_path}: {e}")
-            designs = []
             
+    if designs:
+        print(f"Found {len(designs)} henna design entries to upload.")
         success_count = 0
         for idx, d in enumerate(designs):
             name = d.get("name")
@@ -113,9 +139,16 @@ def main():
             with open(img_path, 'rb') as img_f:
                 img_bytes = img_f.read()
                 
+            price_val = d.get("price", 100)
+            if isinstance(price_val, str):
+                try:
+                    price_val = int(price_val.strip())
+                except ValueError:
+                    price_val = 100
+
             fields = {
                 "name": name,
-                "price": d.get("price", 100),
+                "price": price_val,
                 "complexity": d.get("complexity", "Simple"),
                 "tags": d.get("tags", "")
             }
@@ -133,7 +166,7 @@ def main():
                 
         print(f"Henna Designs summary: {success_count}/{len(designs)} uploaded successfully.")
     else:
-        print(f"\nInfo: designs.json not found at '{designs_json_path}'. Skipping designs upload.")
+        print(f"\nInfo: Neither designs.csv nor designs.json was found at '{images_dir}'. Skipping designs upload.")
         
     # 2. Upload Invitation Cards
     if os.path.exists(cards_json_path):
