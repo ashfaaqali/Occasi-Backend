@@ -102,4 +102,12 @@ object BackendRoutes {
         const val BY_ID = "/{id}"
         const val PROFILE = "/{id}/profile"
     }
+
+    object Admin {
+        const val BASE = "/admin"
+        const val DESIGNS = "/designs"
+        const val DESIGN_BY_ID = "/designs/{id}"
+        const val INVITATION_CARDS = "/invitation-cards"
+        const val INVITATION_CARD_BY_ID = "/invitation-cards/{id}"
+    }
 }

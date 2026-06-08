@@ -40,4 +40,6 @@ out/
 .kotlin
 
 ### H2 Database ###
-data/
+!data/
+data/*
+!data/upload_assets.py

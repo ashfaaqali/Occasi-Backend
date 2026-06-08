@@ -13,6 +13,8 @@ import org.springframework.web.bind.MethodArgumentNotValidException
 import org.springframework.web.bind.annotation.ExceptionHandler
 import org.springframework.web.bind.annotation.RestControllerAdvice
 import org.springframework.web.multipart.MaxUploadSizeExceededException
+import org.springframework.web.server.ResponseStatusException
+
 
 /**
  * Global exception handler that intercepts all unhandled exceptions thrown by controllers
@@ -333,6 +335,16 @@ class GlobalExceptionHandler {
     fun handleRateLimit(ex: RateLimitExceededException): ResponseEntity<ErrorResponse> {
         return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
             .body(ErrorResponse(error = ex.message ?: BackendMessages.General.RATE_LIMITED, code = "RATE_LIMIT_EXCEEDED"))
+    }
+
+    @ExceptionHandler(ResponseStatusException::class)
+    fun handleResponseStatusException(
+        ex: ResponseStatusException,
+        request: HttpServletRequest
+    ): ResponseEntity<ErrorResponse> {
+        logger.warn("RESPONSE_STATUS_EXCEPTION: {} {} - {}", request.method, request.requestURI, ex.reason)
+        return ResponseEntity.status(ex.statusCode)
+            .body(ErrorResponse(error = ex.reason ?: ex.message, code = "ADMIN_ERROR"))
     }
 
     @ExceptionHandler(Exception::class)

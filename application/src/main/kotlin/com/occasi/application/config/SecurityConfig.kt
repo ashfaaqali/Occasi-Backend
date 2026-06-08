@@ -55,6 +55,7 @@ class SecurityConfig {
                     .requestMatchers("/users/**").permitAll()
                     .requestMatchers("/uploads/**").permitAll()
                     .requestMatchers("/cities/**").permitAll()
+                    .requestMatchers("/admin/**").permitAll()
                     .anyRequest().authenticated()
             }
             .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter::class.java)

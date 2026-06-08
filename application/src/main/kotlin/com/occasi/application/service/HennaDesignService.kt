@@ -2,6 +2,7 @@ package com.occasi.application.service
 
 import com.occasi.application.model.HennaDesign
 import com.occasi.application.repository.HennaDesignRepository
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.cache.annotation.Cacheable
 import org.springframework.stereotype.Service
 
@@ -17,4 +18,13 @@ class HennaDesignService(private val repository: HennaDesignRepository) {
 
     @Cacheable("designDetail", key = "#id")
     fun getDesignById(id: Long): HennaDesign? = repository.findById(id).orElse(null)
+
+    @CacheEvict(value = ["hennaDesigns", "designDetail"], allEntries = true)
+    fun saveDesign(design: HennaDesign): HennaDesign {
+        require(design.price > 0) { "Price must be a positive integer" }
+        return repository.save(design)
+    }
+
+    @CacheEvict(value = ["hennaDesigns", "designDetail"], allEntries = true)
+    fun deleteDesign(id: Long) = repository.deleteById(id)
 }
