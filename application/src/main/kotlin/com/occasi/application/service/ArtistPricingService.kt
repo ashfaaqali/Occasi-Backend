@@ -17,7 +17,7 @@ class ArtistPricingService(
 ) {
  
     @Transactional
-    @CacheEvict(value = ["hennaArtists", "artistDetail"], allEntries = true)
+    @CacheEvict(value = ["hennaArtists", "artistDetail", "hennaDesigns", "designDetail"], allEntries = true)
     fun updatePricing(artistId: Long, pricingTiers: Map<String, Int>): Int {
         // Validate all values are positive
         if (pricingTiers.values.any { it <= 0 }) {

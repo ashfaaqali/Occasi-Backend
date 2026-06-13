@@ -18,6 +18,9 @@ data class HennaDesign(
     var numberOfPeopleBooked: Int = 0,
     var updatedAt: Instant = Instant.now()
 ) {
+    @Transient
+    var startingPrice: Int = 0
+
     init {
         require(name.isNotBlank()) { "Design name must not be empty" }
         require(complexity in listOf("Simple", "Mid", "Complex", "Bridal")) { "Complexity must be Simple, Mid, Complex, or Bridal" }
