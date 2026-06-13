@@ -128,12 +128,7 @@ class DataSeeder {
     private fun generateDesign(index: Int): HennaDesign {
         val name = designNames[index % designNames.size]
         val complexity = complexities[index % complexities.size]
-        val price = when (complexity) {
-            "Simple" -> Random.nextInt(200, 500)
-            "Mid" -> Random.nextInt(500, 1500)
-            "Complex" -> Random.nextInt(1500, 5000)
-            else -> Random.nextInt(300, 1000)
-        }
+        val designType = if (index % 2 == 0) DesignType.HAND else DesignType.FEET
         val tagCount = Random.nextInt(2, 5)
         val tags = designTags.shuffled().take(tagCount).joinToString(",")
         val imageUrl = mehndiImageUrls[index % mehndiImageUrls.size]
@@ -141,7 +136,7 @@ class DataSeeder {
         return HennaDesign(
             imageUrl = imageUrl,
             name = name,
-            price = price,
+            designType = designType,
             complexity = complexity,
             tags = tags,
             likes = Random.nextInt(0, 300),

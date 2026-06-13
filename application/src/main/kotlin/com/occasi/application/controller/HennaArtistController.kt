@@ -17,13 +17,14 @@ class HennaArtistController(private val service: HennaArtistService) {
     fun getAllHennaArtists(
         @RequestParam complexity: String?,
         @RequestParam city: String?,
+        @RequestParam(defaultValue = "HAND") designType: String,
         request: HttpServletRequest
     ): ResponseEntity<Any> {
         if (complexity != null) {
             return try {
-                ResponseEntity.ok(service.getArtistsForComplexity(complexity))
+                ResponseEntity.ok(service.getArtistsForComplexity(complexity, designType))
             } catch (e: IllegalArgumentException) {
-                ResponseEntity.badRequest().body(mapOf("error" to "Invalid complexity tier: $complexity"))
+                ResponseEntity.badRequest().body(mapOf("error" to "Invalid complexity tier: $complexity or design type: $designType"))
             }
         }
 

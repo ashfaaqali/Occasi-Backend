@@ -118,7 +118,6 @@ class BookingServiceArtistPropertyTest : StringSpec() {
         val design = HennaDesign(
             imageUrl = "http://img.png",
             name = "Design${System.nanoTime()}",
-            price = 500,
             complexity = "Simple",
             tags = "BRIDAL"
         )
@@ -138,8 +137,8 @@ class BookingServiceArtistPropertyTest : StringSpec() {
             Booking(
                 user = user,
                 artist = artist,
-                design = design,
-                price = design.price,
+                handDesign = design,
+                price = 500,
                 bookingStatus = BookingStatus.CONFIRMED,
                 paymentStatus = PaymentStatus.UNPAID,
                 paymentMethod = PaymentMethod.ONLINE,

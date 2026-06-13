@@ -6,7 +6,7 @@ import org.hibernate.annotations.OnDelete
 import org.hibernate.annotations.OnDeleteAction
 
 @Entity
-@Table(uniqueConstraints = [UniqueConstraint(columnNames = ["artist_id", "complexity_tier"])])
+@Table(uniqueConstraints = [UniqueConstraint(columnNames = ["artist_id", "complexity_tier", "design_type"])])
 data class ArtistPricing(
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     var id: Long? = null,
@@ -20,6 +20,10 @@ data class ArtistPricing(
     @Enumerated(EnumType.STRING)
     @Column(name = "complexity_tier")
     var complexity: ComplexityTier,
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "design_type")
+    var designType: DesignType = DesignType.HAND,
 
     var price: Int
 ) {

@@ -98,7 +98,7 @@ def main():
                 for row in reader:
                     image_file = row.get("filename") or row.get("image") or row.get("file")
                     name = row.get("name") or row.get("title")
-                    price = row.get("price")
+                    design_type = row.get("designType") or row.get("type") or "HAND"
                     complexity = row.get("complexity")
                     tags = row.get("tags")
                     
@@ -106,7 +106,7 @@ def main():
                         designs.append({
                             "name": name.strip(),
                             "image": image_file.strip(),
-                            "price": price,
+                            "designType": design_type.strip(),
                             "complexity": complexity.strip() if complexity else "Simple",
                             "tags": tags.strip() if tags else ""
                         })
@@ -139,16 +139,11 @@ def main():
             with open(img_path, 'rb') as img_f:
                 img_bytes = img_f.read()
                 
-            price_val = d.get("price", 100)
-            if isinstance(price_val, str):
-                try:
-                    price_val = int(price_val.strip())
-                except ValueError:
-                    price_val = 100
+            design_type = d.get("designType") or d.get("type") or "HAND"
 
             fields = {
                 "name": name,
-                "price": price_val,
+                "designType": design_type,
                 "complexity": d.get("complexity", "Simple"),
                 "tags": d.get("tags", "")
             }

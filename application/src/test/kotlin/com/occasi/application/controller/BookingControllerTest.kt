@@ -24,7 +24,11 @@ class BookingControllerTest : StringSpec({
 
     fun makeBookingResponse(
         id: Long = 1L,
-        designId: Long = 1L,
+        handDesignId: Long? = 1L,
+        handDesignName: String? = "Bridal",
+        feetDesignId: Long? = null,
+        feetDesignName: String? = null,
+        handCoverage: String? = "FRONT",
         artistId: Long = 1L,
         price: Int = 500,
         bookingStatus: String = "PENDING",
@@ -41,7 +45,9 @@ class BookingControllerTest : StringSpec({
         cancelledBy: String? = null,
         bookingDate: String = LocalDateTime.now().format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
     ) = BookingResponse(
-        id = id, designId = designId, designName = "Bridal",
+        id = id, handDesignId = handDesignId, handDesignName = handDesignName,
+        feetDesignId = feetDesignId, feetDesignName = feetDesignName,
+        handCoverage = handCoverage,
         artistId = artistId, artistName = "Artist",
         price = price, bookingStatus = bookingStatus,
         paymentStatus = paymentStatus, paymentMethod = paymentMethod,

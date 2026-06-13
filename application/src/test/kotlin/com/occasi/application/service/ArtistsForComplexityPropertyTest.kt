@@ -3,6 +3,7 @@ package com.occasi.application.service
 import com.occasi.application.config.TestFirebaseConfig
 import com.occasi.application.model.ArtistPricing
 import com.occasi.application.model.ComplexityTier
+import com.occasi.application.model.DesignType
 import com.occasi.application.model.HennaArtist
 import com.occasi.application.repository.ArtistPricingRepository
 import com.occasi.application.repository.HennaArtistRepository
@@ -135,7 +136,7 @@ class ArtistsForComplexityPropertyTest : StringSpec() {
                     "1234567890"
                 )
                 artistPricingRepository.saveAndFlush(
-                    ArtistPricing(artist = artistWith, complexity = queryTier, price = price1)
+                    ArtistPricing(artist = artistWith, complexity = queryTier, designType = DesignType.HAND, price = price1)
                 )
 
                 // Create artist WITHOUT pricing for the queried tier (use a different tier)
@@ -146,7 +147,7 @@ class ArtistsForComplexityPropertyTest : StringSpec() {
                     "9876543210"
                 )
                 artistPricingRepository.saveAndFlush(
-                    ArtistPricing(artist = artistWithout, complexity = otherTier, price = price2)
+                    ArtistPricing(artist = artistWithout, complexity = otherTier, designType = DesignType.HAND, price = price2)
                 )
 
                 val results = hennaArtistService.getArtistsForComplexity(queryTier.name)
@@ -183,7 +184,7 @@ class ArtistsForComplexityPropertyTest : StringSpec() {
                     )
                     val price = (i * 500) + (System.nanoTime() % 100).toInt().coerceAtLeast(1)
                     artistPricingRepository.saveAndFlush(
-                        ArtistPricing(artist = artist, complexity = queryTier, price = price)
+                        ArtistPricing(artist = artist, complexity = queryTier, designType = DesignType.HAND, price = price)
                     )
                     artist to price
                 }

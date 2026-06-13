@@ -5,6 +5,7 @@ import com.occasi.application.model.*
 import com.occasi.application.repository.ArtistPortfolioImageRepository
 import com.occasi.application.repository.BookingRepository
 import com.occasi.application.repository.HennaDesignRepository
+import com.occasi.application.repository.ArtistPricingRepository
 import io.kotest.assertions.throwables.shouldThrow
 import io.kotest.core.spec.style.StringSpec
 import io.kotest.matchers.shouldBe
@@ -17,35 +18,41 @@ class BookingDesignChangeAndProofTest : StringSpec({
 
     fun makeUser() = User(id = 1L, name = "Customer", email = "customer@test.com", mobileNumber = "1234567890")
     fun makeArtist() = HennaArtist(id = 1L, name = "Artist", email = "artist@test.com", mobileNumber = "0987654321", cityName = "Delhi", location = "Noida")
-    fun makeDesign(id: Long, price: Int, complexity: String = "Simple") = HennaDesign(id = id, imageUrl = "http://design.png", name = "Design $id", price = price, complexity = complexity, tags = "TAG")
+    fun makeDesign(id: Long, complexity: String = "Simple") = HennaDesign(id = id, imageUrl = "http://design.png", name = "Design $id", complexity = complexity, tags = "TAG")
 
     "updateBookingDesign to a cheaper design calculates difference and initiates partial refund for paid online bookings" {
         val bookingRepo: BookingRepository = mock()
         val designRepo: HennaDesignRepository = mock()
         val portfolioImageRepo: ArtistPortfolioImageRepository = mock()
+        val artistPricingRepo: ArtistPricingRepository = mock()
         val razorpayService: RazorpayService = mock()
 
-        val designA = makeDesign(1L, 1000)
-        val designB = makeDesign(2L, 600)
+        val designA = makeDesign(1L, "Mid")
+        val designB = makeDesign(2L, "Simple")
         val booking = Booking(
-            id = 10L, user = makeUser(), artist = makeArtist(), design = designA, price = 1000,
+            id = 10L, user = makeUser(), artist = makeArtist(), handDesign = designA, price = 1000,
             bookingStatus = BookingStatus.CONFIRMED, paymentStatus = PaymentStatus.PAID,
             paymentMethod = PaymentMethod.ONLINE, scheduledDateTime = LocalDateTime.now().plusDays(1),
             customerName = "Name", customerPhone = "1234567890", serviceAddress = "Addr",
-            razorpayPaymentId = "pay_original"
+            razorpayPaymentId = "pay_original", handCoverage = HandCoverage.FRONT
         )
 
         whenever(bookingRepo.findById(10L)).thenReturn(Optional.of(booking))
         whenever(designRepo.findById(2L)).thenReturn(Optional.of(designB))
         doAnswer { it.arguments[0] as Booking }.whenever(bookingRepo).save(any())
         whenever(razorpayService.initiateRefund(any(), any())).thenReturn("refund_123")
+        
+        whenever(artistPricingRepo.findByArtistIdAndComplexityAndDesignType(any(), eq(ComplexityTier.MID), any()))
+            .thenReturn(ArtistPricing(artist = booking.artist, complexity = ComplexityTier.MID, price = 1000, designType = DesignType.HAND))
+        whenever(artistPricingRepo.findByArtistIdAndComplexityAndDesignType(any(), eq(ComplexityTier.SIMPLE), any()))
+            .thenReturn(ArtistPricing(artist = booking.artist, complexity = ComplexityTier.SIMPLE, price = 600, designType = DesignType.HAND))
 
         val service = BookingService(
             bookingRepository = bookingRepo,
             userRepository = mock(),
             artistRepository = mock(),
             designRepository = designRepo,
-            artistPricingRepository = mock(),
+            artistPricingRepository = artistPricingRepo,
             portfolioImageRepository = portfolioImageRepo,
             razorpayService = razorpayService,
             cancellationEngine = mock()
@@ -54,7 +61,7 @@ class BookingDesignChangeAndProofTest : StringSpec({
         val response = service.updateBookingDesign(10L, 2L)
 
         response.price shouldBe 600
-        response.designId shouldBe 2L
+        response.handDesignId shouldBe 2L
         response.paymentStatus shouldBe "REFUND_INITIATED"
         response.refundAmount shouldBe 400
         verify(razorpayService).initiateRefund("pay_original", 40000)
@@ -64,16 +71,17 @@ class BookingDesignChangeAndProofTest : StringSpec({
         val bookingRepo: BookingRepository = mock()
         val designRepo: HennaDesignRepository = mock()
         val portfolioImageRepo: ArtistPortfolioImageRepository = mock()
+        val artistPricingRepo: ArtistPricingRepository = mock()
         val razorpayService: RazorpayService = mock()
 
-        val designA = makeDesign(1L, 500)
-        val designB = makeDesign(2L, 900)
+        val designA = makeDesign(1L, "Simple")
+        val designB = makeDesign(2L, "Mid")
         val booking = Booking(
-            id = 10L, user = makeUser(), artist = makeArtist(), design = designA, price = 500,
+            id = 10L, user = makeUser(), artist = makeArtist(), handDesign = designA, price = 500,
             bookingStatus = BookingStatus.CONFIRMED, paymentStatus = PaymentStatus.PAID,
             paymentMethod = PaymentMethod.ONLINE, scheduledDateTime = LocalDateTime.now().plusDays(1),
             customerName = "Name", customerPhone = "1234567890", serviceAddress = "Addr",
-            razorpayPaymentId = "pay_original"
+            razorpayPaymentId = "pay_original", handCoverage = HandCoverage.FRONT
         )
 
         whenever(bookingRepo.findById(10L)).thenReturn(Optional.of(booking))
@@ -81,12 +89,17 @@ class BookingDesignChangeAndProofTest : StringSpec({
         doAnswer { it.arguments[0] as Booking }.whenever(bookingRepo).save(any())
         whenever(razorpayService.createOrder(any(), any())).thenReturn("order_diff_789")
 
+        whenever(artistPricingRepo.findByArtistIdAndComplexityAndDesignType(any(), eq(ComplexityTier.SIMPLE), any()))
+            .thenReturn(ArtistPricing(artist = booking.artist, complexity = ComplexityTier.SIMPLE, price = 500, designType = DesignType.HAND))
+        whenever(artistPricingRepo.findByArtistIdAndComplexityAndDesignType(any(), eq(ComplexityTier.MID), any()))
+            .thenReturn(ArtistPricing(artist = booking.artist, complexity = ComplexityTier.MID, price = 900, designType = DesignType.HAND))
+
         val service = BookingService(
             bookingRepository = bookingRepo,
             userRepository = mock(),
             artistRepository = mock(),
             designRepository = designRepo,
-            artistPricingRepository = mock(),
+            artistPricingRepository = artistPricingRepo,
             portfolioImageRepository = portfolioImageRepo,
             razorpayService = razorpayService,
             cancellationEngine = mock()
@@ -95,7 +108,7 @@ class BookingDesignChangeAndProofTest : StringSpec({
         val response = service.updateBookingDesign(10L, 2L)
 
         response.price shouldBe 900
-        response.designId shouldBe 2L
+        response.handDesignId shouldBe 2L
         response.paymentStatus shouldBe "PENDING_DIFFERENCE"
         response.razorpayDiffOrderId shouldBe "order_diff_789"
         verify(razorpayService).createOrder(40000, 10L)
@@ -106,7 +119,7 @@ class BookingDesignChangeAndProofTest : StringSpec({
         val razorpayService: RazorpayService = mock()
 
         val booking = Booking(
-            id = 10L, user = makeUser(), artist = makeArtist(), design = makeDesign(1L, 900), price = 900,
+            id = 10L, user = makeUser(), artist = makeArtist(), handDesign = makeDesign(1L, "Simple"), price = 900,
             bookingStatus = BookingStatus.CONFIRMED, paymentStatus = PaymentStatus.PENDING_DIFFERENCE,
             paymentMethod = PaymentMethod.ONLINE, scheduledDateTime = LocalDateTime.now().plusDays(1),
             customerName = "Name", customerPhone = "1234567890", serviceAddress = "Addr",
@@ -140,7 +153,7 @@ class BookingDesignChangeAndProofTest : StringSpec({
 
         val artist = makeArtist()
         val booking = Booking(
-            id = 10L, user = makeUser(), artist = artist, design = makeDesign(1L, 500), price = 500,
+            id = 10L, user = makeUser(), artist = artist, handDesign = makeDesign(1L, "Simple"), price = 500,
             bookingStatus = BookingStatus.IN_PROGRESS, paymentStatus = PaymentStatus.PAID,
             paymentMethod = PaymentMethod.ONLINE, scheduledDateTime = LocalDateTime.now().plusDays(1),
             customerName = "Name", customerPhone = "1234567890", serviceAddress = "Addr"
@@ -176,7 +189,7 @@ class BookingDesignChangeAndProofTest : StringSpec({
         val bookingRepo: BookingRepository = mock()
 
         val booking = Booking(
-            id = 10L, user = makeUser(), artist = makeArtist(), design = makeDesign(1L, 900), price = 900,
+            id = 10L, user = makeUser(), artist = makeArtist(), handDesign = makeDesign(1L, "Simple"), price = 900,
             bookingStatus = BookingStatus.IN_PROGRESS, paymentStatus = PaymentStatus.PENDING_DIFFERENCE,
             paymentMethod = PaymentMethod.ONLINE, scheduledDateTime = LocalDateTime.now().plusDays(1),
             customerName = "Name", customerPhone = "1234567890", serviceAddress = "Addr"

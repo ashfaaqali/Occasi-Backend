@@ -35,8 +35,8 @@ class BookingServicePropertyTest : StringSpec({
         mobileNumber = "0987654321", cityName = "Mumbai", location = "Andheri"
     )
 
-    fun makeDesign(price: Int): HennaDesign {
-        return HennaDesign(id = 1L, imageUrl = "http://img.png", name = "Bridal", price = price, complexity = "Simple", tags = "BRIDAL")
+    fun makeDesign(): HennaDesign {
+        return HennaDesign(id = 1L, imageUrl = "http://img.png", name = "Bridal", complexity = "Simple", tags = "BRIDAL")
     }
 
     fun buildService(
@@ -66,15 +66,18 @@ class BookingServicePropertyTest : StringSpec({
             val artistRepo: HennaArtistRepository = mock()
             val designRepo: HennaDesignRepository = mock()
             val bookingRepo: BookingRepository = mock()
+            val artistPricingRepo: ArtistPricingRepository = mock()
             val razorpayService: RazorpayService = mock()
 
             val user = makeUser()
             val artist = makeArtist()
-            val design = makeDesign(price)
+            val design = makeDesign()
 
             whenever(userRepo.findById(1L)).thenReturn(Optional.of(user))
             whenever(artistRepo.findById(1L)).thenReturn(Optional.of(artist))
             whenever(designRepo.findById(1L)).thenReturn(Optional.of(design))
+            whenever(artistPricingRepo.findByArtistIdAndComplexityAndDesignType(any(), any(), any()))
+                .thenReturn(ArtistPricing(artist = artist, complexity = ComplexityTier.SIMPLE, price = price, designType = DesignType.HAND))
             whenever(razorpayService.createOrder(any(), any())).thenReturn("order_test123")
             doAnswer { it.arguments[0] }.whenever(designRepo).save(any())
             doAnswer { invocation ->
@@ -83,9 +86,9 @@ class BookingServicePropertyTest : StringSpec({
                 b
             }.whenever(bookingRepo).save(any())
 
-            val service = buildService(bookingRepo, userRepo, artistRepo, designRepo, razorpayService = razorpayService)
+            val service = buildService(bookingRepo, userRepo, artistRepo, designRepo, artistPricingRepo, razorpayService = razorpayService)
             val request = CreateBookingRequest(
-                userId = 1L, artistId = 1L, designId = 1L,
+                userId = 1L, artistId = 1L, handDesignId = 1L, handCoverage = "FRONT",
                 scheduledDateTime = dateTime, customerName = name,
                 customerPhone = phone, customerEmail = "e@e.com",
                 serviceAddress = address, paymentMethod = "ONLINE"
@@ -108,7 +111,7 @@ class BookingServicePropertyTest : StringSpec({
         checkAll(blankFields, arbNonBlank, arbPhone, arbNonBlank, arbFutureDateTime) { blankField, name, phone, address, dateTime ->
             val service = buildService()
             val request = CreateBookingRequest(
-                userId = 1L, artistId = 1L, designId = 1L,
+                userId = 1L, artistId = 1L, handDesignId = 1L, handCoverage = "FRONT",
                 scheduledDateTime = if (blankField == "scheduledDateTime") "   " else dateTime,
                 customerName = if (blankField == "customerName") "   " else name,
                 customerPhone = if (blankField == "customerPhone") "   " else phone,
@@ -132,15 +135,18 @@ class BookingServicePropertyTest : StringSpec({
             val artistRepo: HennaArtistRepository = mock()
             val designRepo: HennaDesignRepository = mock()
             val bookingRepo: BookingRepository = mock()
+            val artistPricingRepo: ArtistPricingRepository = mock()
             val razorpayService: RazorpayService = mock()
 
             val user = makeUser()
             val artist = makeArtist()
-            val design = makeDesign(price)
+            val design = makeDesign()
 
             whenever(userRepo.findById(1L)).thenReturn(Optional.of(user))
             whenever(artistRepo.findById(1L)).thenReturn(Optional.of(artist))
             whenever(designRepo.findById(1L)).thenReturn(Optional.of(design))
+            whenever(artistPricingRepo.findByArtistIdAndComplexityAndDesignType(any(), any(), any()))
+                .thenReturn(ArtistPricing(artist = artist, complexity = ComplexityTier.SIMPLE, price = price, designType = DesignType.HAND))
             doAnswer { it.arguments[0] }.whenever(designRepo).save(any())
             doAnswer { invocation ->
                 val b = invocation.arguments[0] as Booking
@@ -148,9 +154,9 @@ class BookingServicePropertyTest : StringSpec({
                 b
             }.whenever(bookingRepo).save(any())
 
-            val service = buildService(bookingRepo, userRepo, artistRepo, designRepo, razorpayService = razorpayService)
+            val service = buildService(bookingRepo, userRepo, artistRepo, designRepo, artistPricingRepo, razorpayService = razorpayService)
             val request = CreateBookingRequest(
-                userId = 1L, artistId = 1L, designId = 1L,
+                userId = 1L, artistId = 1L, handDesignId = 1L, handCoverage = "FRONT",
                 scheduledDateTime = dateTime, customerName = name,
                 customerPhone = phone, customerEmail = null,
                 serviceAddress = address, paymentMethod = "PAY_AFTER_SERVICE"
@@ -173,15 +179,18 @@ class BookingServicePropertyTest : StringSpec({
             val artistRepo: HennaArtistRepository = mock()
             val designRepo: HennaDesignRepository = mock()
             val bookingRepo: BookingRepository = mock()
+            val artistPricingRepo: ArtistPricingRepository = mock()
             val razorpayService: RazorpayService = mock()
 
             val user = makeUser()
             val artist = makeArtist()
-            val design = makeDesign(price)
+            val design = makeDesign()
 
             whenever(userRepo.findById(1L)).thenReturn(Optional.of(user))
             whenever(artistRepo.findById(1L)).thenReturn(Optional.of(artist))
             whenever(designRepo.findById(1L)).thenReturn(Optional.of(design))
+            whenever(artistPricingRepo.findByArtistIdAndComplexityAndDesignType(any(), any(), any()))
+                .thenReturn(ArtistPricing(artist = artist, complexity = ComplexityTier.SIMPLE, price = price, designType = DesignType.HAND))
             whenever(razorpayService.createOrder(any(), any())).thenReturn("order_abc123")
             doAnswer { it.arguments[0] }.whenever(designRepo).save(any())
             doAnswer { invocation ->
@@ -190,9 +199,9 @@ class BookingServicePropertyTest : StringSpec({
                 b
             }.whenever(bookingRepo).save(any())
 
-            val service = buildService(bookingRepo, userRepo, artistRepo, designRepo, razorpayService = razorpayService)
+            val service = buildService(bookingRepo, userRepo, artistRepo, designRepo, artistPricingRepo, razorpayService = razorpayService)
             val request = CreateBookingRequest(
-                userId = 1L, artistId = 1L, designId = 1L,
+                userId = 1L, artistId = 1L, handDesignId = 1L, handCoverage = "FRONT",
                 scheduledDateTime = dateTime, customerName = name,
                 customerPhone = phone, customerEmail = null,
                 serviceAddress = address, paymentMethod = "ONLINE"
@@ -215,9 +224,9 @@ class BookingServicePropertyTest : StringSpec({
 
             val user = makeUser()
             val artist = makeArtist()
-            val design = makeDesign(500)
+            val design = makeDesign()
             val booking = Booking(
-                id = 1L, user = user, artist = artist, design = design, price = 500,
+                id = 1L, user = user, artist = artist, handDesign = design, price = 500,
                 bookingStatus = BookingStatus.PENDING, paymentStatus = PaymentStatus.UNPAID,
                 paymentMethod = PaymentMethod.ONLINE,
                 scheduledDateTime = LocalDateTime.now().plusDays(1),
@@ -244,9 +253,9 @@ class BookingServicePropertyTest : StringSpec({
 
             val user = makeUser()
             val artist = makeArtist()
-            val design = makeDesign(500)
+            val design = makeDesign()
             val booking = Booking(
-                id = 1L, user = user, artist = artist, design = design, price = 500,
+                id = 1L, user = user, artist = artist, handDesign = design, price = 500,
                 bookingStatus = BookingStatus.PENDING, paymentStatus = PaymentStatus.UNPAID,
                 paymentMethod = PaymentMethod.ONLINE,
                 scheduledDateTime = LocalDateTime.now().plusDays(1),
@@ -280,9 +289,9 @@ class BookingServicePropertyTest : StringSpec({
 
             val user = makeUser()
             val artist = makeArtist()
-            val design = makeDesign(price)
+            val design = makeDesign()
             val booking = Booking(
-                id = 1L, user = user, artist = artist, design = design, price = price,
+                id = 1L, user = user, artist = artist, handDesign = design, price = price,
                 bookingStatus = status, paymentStatus = PaymentStatus.UNPAID,
                 paymentMethod = PaymentMethod.ONLINE,
                 scheduledDateTime = LocalDateTime.now().plusDays(1),
@@ -317,9 +326,9 @@ class BookingServicePropertyTest : StringSpec({
 
             val user = makeUser()
             val artist = makeArtist()
-            val design = makeDesign(price)
+            val design = makeDesign()
             val booking = Booking(
-                id = 1L, user = user, artist = artist, design = design, price = price,
+                id = 1L, user = user, artist = artist, handDesign = design, price = price,
                 bookingStatus = BookingStatus.CONFIRMED,
                 paymentStatus = PaymentStatus.PAY_AFTER_SERVICE,
                 paymentMethod = PaymentMethod.PAY_AFTER_SERVICE,
@@ -351,9 +360,9 @@ class BookingServicePropertyTest : StringSpec({
 
             val user = makeUser()
             val artist = makeArtist()
-            val design = makeDesign(price)
+            val design = makeDesign()
             val booking = Booking(
-                id = 1L, user = user, artist = artist, design = design, price = price,
+                id = 1L, user = user, artist = artist, handDesign = design, price = price,
                 bookingStatus = BookingStatus.CONFIRMED,
                 paymentStatus = PaymentStatus.PAID,
                 paymentMethod = PaymentMethod.ONLINE,

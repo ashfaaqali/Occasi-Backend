@@ -22,6 +22,8 @@ import java.util.Optional
 // Feature: saved-favourites, Property 2: Add/Remove round-trip
 // Feature: saved-favourites, Property 3: Favourites list sorted descending by created_at
 // Feature: saved-favourites, Property 4: Type filter returns only matching items
+import com.occasi.application.repository.ArtistPricingRepository
+
 class FavouritesServicePropertyTest : StringSpec({
 
     // --- Shared generators ---
@@ -39,7 +41,7 @@ class FavouritesServicePropertyTest : StringSpec({
 
     fun makeDesign(id: Long, name: String, price: Int) = HennaDesign(
         id = id, imageUrl = "http://design.png", name = name,
-        price = price, complexity = "Simple", tags = "BRIDAL"
+        complexity = "Simple", tags = "BRIDAL"
     )
 
     fun makeCard(id: Long, name: String, price: Int) = InvitationCard(
@@ -52,8 +54,9 @@ class FavouritesServicePropertyTest : StringSpec({
         favouriteRepo: UserFavouriteRepository = mock(),
         artistRepo: HennaArtistRepository = mock(),
         designRepo: HennaDesignRepository = mock(),
-        cardRepo: InvitationCardRepository = mock()
-    ) = FavouritesService(favouriteRepo, artistRepo, designRepo, cardRepo)
+        cardRepo: InvitationCardRepository = mock(),
+        artistPricingRepo: ArtistPricingRepository = mock()
+    ) = FavouritesService(favouriteRepo, artistRepo, designRepo, cardRepo, artistPricingRepo)
 
     // **Validates: Requirements 1.2, 1.3**
     // Feature: saved-favourites, Property 1: Add favourite is idempotent

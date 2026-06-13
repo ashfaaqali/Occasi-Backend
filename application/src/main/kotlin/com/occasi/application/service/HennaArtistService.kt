@@ -4,6 +4,7 @@ import com.occasi.application.dto.ArtistRegistrationRequest
 import com.occasi.application.dto.ArtistWithPriceDto
 import com.occasi.application.model.ArtistPortfolioImage
 import com.occasi.application.model.ComplexityTier
+import com.occasi.application.model.DesignType
 import com.occasi.application.model.HennaArtist
 import com.occasi.application.repository.ArtistPricingRepository
 import com.occasi.application.repository.HennaArtistRepository
@@ -45,9 +46,10 @@ class HennaArtistService(
         return repository.save(artist)
     }
 
-    fun getArtistsForComplexity(complexity: String): List<ArtistWithPriceDto> {
+    fun getArtistsForComplexity(complexity: String, designTypeStr: String = "HAND"): List<ArtistWithPriceDto> {
         val tier = ComplexityTier.valueOf(complexity.uppercase())
-        return artistPricingRepository.findByComplexity(tier)
+        val designType = DesignType.valueOf(designTypeStr.uppercase())
+        return artistPricingRepository.findByComplexityAndDesignType(tier, designType)
             .map { pricing ->
                 ArtistWithPriceDto(
                     artistId = pricing.artist.id!!,

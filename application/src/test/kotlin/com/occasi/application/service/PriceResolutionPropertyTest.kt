@@ -103,11 +103,10 @@ class PriceResolutionPropertyTest : StringSpec() {
         )
     }
 
-    private fun createDesign(name: String, price: Int, complexity: String, tags: String): HennaDesign {
+    private fun createDesign(name: String, complexity: String, tags: String): HennaDesign {
         val design = HennaDesign(
             imageUrl = "http://img.png",
             name = name,
-            price = price,
             complexity = complexity,
             tags = tags
         )
@@ -122,41 +121,41 @@ class PriceResolutionPropertyTest : StringSpec() {
         "Property 1: when ArtistPricing exists, resolveBookingPrice returns ArtistPricing.price" {
             checkAll(
                 PropTestConfig(minSuccess = 100),
-                nameArb, emailArb, mobileArb, nameArb, designPriceArb, complexityArb, tagsArb, priceArb
-            ) { artistName, email, mobile, designName, designPrice, complexity, tags, artistPrice ->
+                nameArb, emailArb, mobileArb, nameArb, complexityArb, tagsArb, priceArb
+            ) { artistName, email, mobile, designName, complexity, tags, artistPrice ->
                 val artist = createArtist(artistName, email, mobile)
-                val design = createDesign(designName, designPrice, complexity, tags)
+                val design = createDesign(designName, complexity, tags)
 
                 val tier = ComplexityTier.valueOf(complexity.uppercase())
                 val pricing = ArtistPricing(
                     artist = artist,
                     complexity = tier,
+                    designType = DesignType.HAND,
                     price = artistPrice
                 )
                 artistPricingRepository.saveAndFlush(pricing)
 
-                val resolvedPrice = bookingService.resolveBookingPrice(artist.id!!, design.id!!)
+                val resolvedPrice = bookingService.resolveBookingPrice(artist.id!!, design.id!!, null, HandCoverage.FRONT)
 
                 resolvedPrice shouldBe artistPrice
             }
         }
 
-        // Property 2: Price Fallback to Design Price
-        // For any artist+design where no ArtistPricing exists, resolved price equals design.price
-        // **Validates: Requirements 3.3, 10.5, 15.3, 17.1**
-        "Property 2: when no ArtistPricing exists, resolveBookingPrice returns design.price" {
+        // Property 2: Price Fallback to Zero
+        // For any artist+design where no ArtistPricing exists, resolved price equals 0
+        "Property 2: when no ArtistPricing exists, resolveBookingPrice returns 0" {
             checkAll(
                 PropTestConfig(minSuccess = 100),
-                nameArb, emailArb, mobileArb, nameArb, designPriceArb, complexityArb, tagsArb
-            ) { artistName, email, mobile, designName, designPrice, complexity, tags ->
+                nameArb, emailArb, mobileArb, nameArb, complexityArb, tagsArb
+            ) { artistName, email, mobile, designName, complexity, tags ->
                 val artist = createArtist(artistName, email, mobile)
-                val design = createDesign(designName, designPrice, complexity, tags)
+                val design = createDesign(designName, complexity, tags)
 
                 // Do NOT create any ArtistPricing row
 
-                val resolvedPrice = bookingService.resolveBookingPrice(artist.id!!, design.id!!)
+                val resolvedPrice = bookingService.resolveBookingPrice(artist.id!!, design.id!!, null, HandCoverage.FRONT)
 
-                resolvedPrice shouldBe designPrice
+                resolvedPrice shouldBe 0
             }
         }
     }

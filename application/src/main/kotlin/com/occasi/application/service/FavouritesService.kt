@@ -3,6 +3,8 @@ package com.occasi.application.service
 import com.occasi.application.dto.FavouriteItemResponse
 import com.occasi.application.model.ItemType
 import com.occasi.application.model.UserFavourite
+import com.occasi.application.model.ComplexityTier
+import com.occasi.application.repository.ArtistPricingRepository
 import com.occasi.application.repository.HennaArtistRepository
 import com.occasi.application.repository.HennaDesignRepository
 import com.occasi.application.repository.InvitationCardRepository
@@ -15,7 +17,8 @@ class FavouritesService(
     private val favouriteRepository: UserFavouriteRepository,
     private val hennaArtistRepository: HennaArtistRepository,
     private val hennaDesignRepository: HennaDesignRepository,
-    private val invitationCardRepository: InvitationCardRepository
+    private val invitationCardRepository: InvitationCardRepository,
+    private val artistPricingRepository: ArtistPricingRepository
 ) {
 
     fun addFavourite(userId: Long, itemId: Long, itemType: ItemType): UserFavourite {
@@ -51,13 +54,17 @@ class FavouritesService(
                 )
             }
             ItemType.DESIGN -> hennaDesignRepository.findById(fav.itemId).orElse(null)?.let {
+                val minPrice = artistPricingRepository.findByComplexityAndDesignType(
+                    ComplexityTier.valueOf(it.complexity.uppercase()),
+                    it.designType
+                ).map { p -> p.price }.minOrNull() ?: 0
                 FavouriteItemResponse(
                     itemId = it.id!!,
                     itemType = "DESIGN",
                     createdAt = fav.createdAt.toString(),
                     name = it.name,
                     imageUrl = it.imageUrl,
-                    price = it.price
+                    price = minPrice
                 )
             }
             ItemType.CARD -> invitationCardRepository.findById(fav.itemId).orElse(null)?.let {

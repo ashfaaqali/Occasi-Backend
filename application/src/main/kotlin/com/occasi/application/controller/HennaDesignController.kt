@@ -14,14 +14,8 @@ class HennaDesignController(private val service: HennaDesignService) {
 
     @GetMapping
     fun getAllDesigns(
-        @RequestParam(required = false) minPrice: Int?,
-        @RequestParam(required = false) maxPrice: Int?,
         request: HttpServletRequest
     ): ResponseEntity<Any> {
-        if (minPrice != null && maxPrice != null) {
-            return ResponseEntity.ok(service.getDesignsByPriceRange(minPrice, maxPrice))
-        }
-
         val designs = service.getAllDesigns()
         val lastModified = designs.maxOfOrNull { it.updatedAt }
 

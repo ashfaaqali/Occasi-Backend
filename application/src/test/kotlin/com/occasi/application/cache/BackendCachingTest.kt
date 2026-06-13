@@ -228,7 +228,6 @@ class BackendCachingTest : StringSpec() {
                 HennaDesign(
                     imageUrl = "https://example.com/design.jpg",
                     name = "LastMod Design",
-                    price = 300,
                     complexity = "Simple",
                     tags = "BRIDAL",
                     updatedAt = Instant.now()

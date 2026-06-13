@@ -12,8 +12,6 @@ class HennaDesignService(private val repository: HennaDesignRepository) {
     @Cacheable("hennaDesigns")
     fun getAllDesigns(): List<HennaDesign> = repository.findAll()
 
-    fun getDesignsByPriceRange(min: Int, max: Int): List<HennaDesign> = repository.findByPriceBetween(min, max)
-
     fun getDesignsByComplexity(complexity: String): List<HennaDesign> = repository.findByComplexity(complexity)
 
     @Cacheable("designDetail", key = "#id")
@@ -21,7 +19,6 @@ class HennaDesignService(private val repository: HennaDesignRepository) {
 
     @CacheEvict(value = ["hennaDesigns", "designDetail"], allEntries = true)
     fun saveDesign(design: HennaDesign): HennaDesign {
-        require(design.price > 0) { "Price must be a positive integer" }
         return repository.save(design)
     }
 

@@ -10,7 +10,8 @@ data class HennaDesign(
 
     var imageUrl: String,
     var name: String = "",           // Design name for display
-    var price: Int,
+    @Enumerated(EnumType.STRING)
+    var designType: DesignType = DesignType.HAND,
     var complexity: String,          // "Simple", "Mid", "Complex"
     var tags: String = "",           // Comma-separated tags e.g. "BRIDAL,ARABIC,WEDDING"
     var likes: Int = 0,

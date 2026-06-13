@@ -74,7 +74,6 @@ class ConditionalRequestPropertyTest : StringSpec() {
                     HennaDesign(
                         imageUrl = "https://example.com/design.jpg",
                         name = "Bridal Design",
-                        price = 500,
                         complexity = "Simple",
                         tags = "BRIDAL",
                         updatedAt = now

@@ -32,15 +32,29 @@ class BookingService(
 
     private val logger = LoggerFactory.getLogger(BookingService::class.java)
 
-    fun resolveBookingPrice(artistId: Long, designId: Long): Int {
-        val design = designRepository.findById(designId)
-            .orElseThrow { BookingNotFoundException("Design not found") }
-        val complexityTier = ComplexityTier.valueOf(design.complexity.uppercase())
-        val artistPricing = artistPricingRepository.findByArtistIdAndComplexity(artistId, complexityTier)
-        return artistPricing?.price ?: run {
-            logger.warn("No ArtistPricing found for artist $artistId, complexity $complexityTier. Falling back to design.price")
-            design.price
+    fun resolveBookingPrice(artistId: Long, handDesignId: Long?, feetDesignId: Long?, handCoverage: HandCoverage?): Int {
+        if (handDesignId == null && feetDesignId == null) {
+            throw InvalidBookingRequestException("At least one design (hand or feet) must be selected")
         }
+        var total = 0
+        if (handDesignId != null) {
+            val design = designRepository.findById(handDesignId)
+                .orElseThrow { BookingNotFoundException("Hand design not found") }
+            val complexityTier = ComplexityTier.valueOf(design.complexity.uppercase())
+            val artistPricing = artistPricingRepository.findByArtistIdAndComplexityAndDesignType(artistId, complexityTier, DesignType.HAND)
+            val basePrice = artistPricing?.price ?: 0
+            val multiplier = (handCoverage ?: HandCoverage.FRONT).getMultiplier()
+            total += basePrice * multiplier
+        }
+        if (feetDesignId != null) {
+            val design = designRepository.findById(feetDesignId)
+                .orElseThrow { BookingNotFoundException("Feet design not found") }
+            val complexityTier = ComplexityTier.valueOf(design.complexity.uppercase())
+            val artistPricing = artistPricingRepository.findByArtistIdAndComplexityAndDesignType(artistId, complexityTier, DesignType.FEET)
+            val basePrice = artistPricing?.price ?: 0
+            total += basePrice
+        }
+        return total
     }
 
     @CacheEvict(value = ["userBookings"], allEntries = true)
@@ -60,18 +74,37 @@ class BookingService(
             .orElseThrow { BookingNotFoundException("User not found") }
         val artist = artistRepository.findById(request.artistId)
             .orElseThrow { BookingNotFoundException(BackendMessages.Artist.NOT_FOUND) }
-        val design = designRepository.findById(request.designId)
-            .orElseThrow { BookingNotFoundException("Design not found") }
+        val handDesign = request.handDesignId?.let {
+            designRepository.findById(it)
+                .orElseThrow { BookingNotFoundException("Hand design not found") }
+        }
+        val feetDesign = request.feetDesignId?.let {
+            designRepository.findById(it)
+                .orElseThrow { BookingNotFoundException("Feet design not found") }
+        }
+        if (handDesign == null && feetDesign == null) {
+            throw InvalidBookingRequestException("At least one design must be selected")
+        }
+
+        val handCoverage = request.handCoverage?.let {
+            try {
+                HandCoverage.valueOf(it.uppercase())
+            } catch (e: Exception) {
+                throw InvalidBookingRequestException("Invalid hand coverage: $it")
+            }
+        }
 
         val scheduledDateTime = LocalDateTime.parse(request.scheduledDateTime, DateTimeFormatter.ISO_LOCAL_DATE_TIME)
         val paymentMethod = PaymentMethod.valueOf(request.paymentMethod)
 
-        val resolvedPrice = resolveBookingPrice(request.artistId, request.designId)
+        val resolvedPrice = resolveBookingPrice(request.artistId, request.handDesignId, request.feetDesignId, handCoverage)
 
         val booking = Booking(
             user = user,
             artist = artist,
-            design = design,
+            handDesign = handDesign,
+            feetDesign = feetDesign,
+            handCoverage = handCoverage,
             price = resolvedPrice,
             bookingStatus = if (paymentMethod == PaymentMethod.PAY_AFTER_SERVICE) BookingStatus.CONFIRMED else BookingStatus.PENDING,
             paymentStatus = if (paymentMethod == PaymentMethod.PAY_AFTER_SERVICE) PaymentStatus.PAY_AFTER_SERVICE else PaymentStatus.UNPAID,
@@ -95,8 +128,14 @@ class BookingService(
         }
 
         // Update design stats
-        design.numberOfPeopleBooked += 1
-        designRepository.save(design)
+        handDesign?.let {
+            it.numberOfPeopleBooked += 1
+            designRepository.save(it)
+        }
+        feetDesign?.let {
+            it.numberOfPeopleBooked += 1
+            designRepository.save(it)
+        }
 
         val savedBooking = bookingRepository.save(booking)
         return toBookingResponse(savedBooking)
@@ -194,10 +233,18 @@ class BookingService(
         val newDesign = designRepository.findById(newDesignId)
             .orElseThrow { BookingNotFoundException("Design not found") }
 
-        val newPrice = resolveBookingPrice(booking.artist.id!!, newDesignId)
-        val oldPrice = booking.price
+        var handId = booking.handDesign?.id
+        var feetId = booking.feetDesign?.id
+        if (newDesign.designType == DesignType.HAND) {
+            booking.handDesign = newDesign
+            handId = newDesign.id
+        } else {
+            booking.feetDesign = newDesign
+            feetId = newDesign.id
+        }
 
-        booking.design = newDesign
+        val newPrice = resolveBookingPrice(booking.artist.id!!, handId, feetId, booking.handCoverage)
+        val oldPrice = booking.price
 
         if (newPrice < oldPrice) {
             // Cheaper design
@@ -281,8 +328,11 @@ class BookingService(
     private fun toBookingResponse(booking: Booking): BookingResponse {
         return BookingResponse(
             id = booking.id!!,
-            designId = booking.design.id!!,
-            designName = booking.design.name,
+            handDesignId = booking.handDesign?.id,
+            handDesignName = booking.handDesign?.name,
+            feetDesignId = booking.feetDesign?.id,
+            feetDesignName = booking.feetDesign?.name,
+            handCoverage = booking.handCoverage?.name,
             artistId = booking.artist.id!!,
             artistName = booking.artist.name,
             price = booking.price,

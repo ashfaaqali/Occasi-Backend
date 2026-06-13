@@ -8,7 +8,9 @@ import jakarta.validation.constraints.Size
 data class CreateBookingRequest(
     val userId: Long,
     val artistId: Long,
-    val designId: Long,
+    val handDesignId: Long? = null,
+    val feetDesignId: Long? = null,
+    val handCoverage: String? = null,
     @field:NotBlank(message = "Scheduled date/time is required")
     val scheduledDateTime: String,
     @field:NotBlank(message = "Customer name is required")
@@ -43,8 +45,11 @@ data class UpdateStatusRequest(
 
 data class BookingResponse(
     val id: Long,
-    val designId: Long,
-    val designName: String,
+    val handDesignId: Long?,
+    val handDesignName: String?,
+    val feetDesignId: Long?,
+    val feetDesignName: String?,
+    val handCoverage: String?,
     val artistId: Long,
     val artistName: String,
     val price: Int,

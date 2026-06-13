@@ -17,8 +17,15 @@ data class Booking(
     var artist: HennaArtist,
 
     @ManyToOne
-    @JoinColumn(name = "design_id")
-    var design: HennaDesign,
+    @JoinColumn(name = "hand_design_id")
+    var handDesign: HennaDesign? = null,
+
+    @ManyToOne
+    @JoinColumn(name = "feet_design_id")
+    var feetDesign: HennaDesign? = null,
+
+    @Enumerated(EnumType.STRING)
+    var handCoverage: HandCoverage? = null,
 
     var price: Int,
 

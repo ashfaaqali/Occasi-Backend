@@ -63,7 +63,7 @@ class AdminController(
         @RequestHeader("X-Admin-Key", required = false) apiKey: String?,
         @RequestParam("file") file: MultipartFile,
         @RequestParam("name") name: String,
-        @RequestParam("price") price: Int,
+        @RequestParam(value = "designType", defaultValue = "HAND") designType: String,
         @RequestParam("complexity") complexity: String,
         @RequestParam("tags") tags: String
     ): ResponseEntity<HennaDesign> {
@@ -74,7 +74,7 @@ class AdminController(
         val design = HennaDesign(
             imageUrl = imageUrl,
             name = name,
-            price = price,
+            designType = com.occasi.application.model.DesignType.valueOf(designType.uppercase()),
             complexity = complexity,
             tags = tags
         )

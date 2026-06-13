@@ -57,7 +57,7 @@ class AdminControllerTest : StringSpec() {
                 multipart("/admin/designs")
                     .file(file)
                     .param("name", "Design Test")
-                    .param("price", "500")
+                    .param("designType", "HAND")
                     .param("complexity", "Simple")
                     .param("tags", "TEST")
             ).andExpect(status().isUnauthorized)
@@ -67,7 +67,7 @@ class AdminControllerTest : StringSpec() {
                 multipart("/admin/designs")
                     .file(file)
                     .param("name", "Design Test")
-                    .param("price", "500")
+                    .param("designType", "HAND")
                     .param("complexity", "Simple")
                     .param("tags", "TEST")
                     .header("X-Admin-Key", "wrong_key")
@@ -86,14 +86,14 @@ class AdminControllerTest : StringSpec() {
                 multipart("/admin/designs")
                     .file(file)
                     .param("name", "New Bridal Special")
-                    .param("price", "2500")
+                    .param("designType", "HAND")
                     .param("complexity", "Bridal")
                     .param("tags", "BRIDAL,ELEGANT")
                     .header("X-Admin-Key", validApiKey)
             ).andExpect(status().isCreated)
                 .andExpect(jsonPath("$.id").exists())
                 .andExpect(jsonPath("$.name").value("New Bridal Special"))
-                .andExpect(jsonPath("$.price").value(2500))
+                .andExpect(jsonPath("$.designType").value("HAND"))
                 .andExpect(jsonPath("$.complexity").value("Bridal"))
                 .andExpect(jsonPath("$.tags").value("BRIDAL,ELEGANT"))
                 .andExpect(jsonPath("$.imageUrl").exists())
@@ -106,7 +106,7 @@ class AdminControllerTest : StringSpec() {
                 HennaDesign(
                     imageUrl = "http://example.com/img.jpg",
                     name = "To Be Deleted",
-                    price = 400,
+                    designType = com.occasi.application.model.DesignType.HAND,
                     complexity = "Simple",
                     tags = "TEMP"
                 )
