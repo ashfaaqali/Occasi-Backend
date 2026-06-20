@@ -65,6 +65,27 @@ class OtpServiceTest {
     }
 
     @Test
+    fun `verify succeeds with test bypass code even without active OTP record`() {
+        val service = OtpService(otpRecordRepository, successProvider, dummyEmailProvider, 5L, 6, "123456")
+
+        assertDoesNotThrow {
+            service.verify("1234567890", "123456")
+        }
+    }
+
+    @Test
+    fun `verify deletes existing OTP record when verifying with test bypass code`() {
+        val service = OtpService(otpRecordRepository, successProvider, dummyEmailProvider, 5L, 6, "123456")
+        val realOtp = service.generateAndSend("1234567890")
+
+        assertNotNull(otpRecordRepository.findByPhoneAndOtp("1234567890", realOtp))
+
+        service.verify("1234567890", "123456")
+
+        assertNull(otpRecordRepository.findByPhoneAndOtp("1234567890", realOtp))
+    }
+
+    @Test
     fun `verify throws InvalidOtpException when OTP does not match`() {
         val service = OtpService(otpRecordRepository, successProvider, dummyEmailProvider, 5L, 6)
         service.generateAndSend("1234567890")

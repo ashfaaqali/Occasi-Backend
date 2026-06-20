@@ -31,7 +31,7 @@ class ImageUploadController(
         // Portfolio limit pre-check
         val artistId = authentication.principal as Long
         val currentCount = portfolioImageRepository.countByArtistId(artistId)
-        if (currentCount >= 6) {
+        if (currentCount >= 12) {
             return ResponseEntity.badRequest()
                 .body(mapOf("error" to BackendMessages.Upload.PORTFOLIO_LIMIT))
         }

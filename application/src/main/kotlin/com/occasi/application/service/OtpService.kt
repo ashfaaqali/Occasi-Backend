@@ -14,7 +14,8 @@ class OtpService(
     private val otpProvider: OtpProvider,
     private val emailOtpProvider: EmailOtpProvider,
     @Value("\${otp.expiry-minutes}") private val expiryMinutes: Long,
-    @Value("\${otp.length}") private val otpLength: Int
+    @Value("\${otp.length}") private val otpLength: Int,
+    @Value("\${otp.test-code:}") private val testCode: String = ""
 ) {
     @Transactional
     fun generateAndSend(phone: String): String {
@@ -43,6 +44,11 @@ class OtpService(
 
     @Transactional
     fun verify(phone: String, otp: String) {
+        if (testCode.isNotBlank() && otp == testCode) {
+            otpRecordRepository.deleteByPhone(phone)
+            return
+        }
+
         val record = otpRecordRepository.findByPhoneAndOtp(phone, otp)
             ?: throw InvalidOtpException("Invalid OTP")
 

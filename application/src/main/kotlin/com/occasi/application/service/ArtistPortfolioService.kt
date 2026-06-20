@@ -15,7 +15,7 @@ class ArtistPortfolioService(
 ) {
 
     companion object {
-        const val MAX_PORTFOLIO_IMAGES = 6
+        const val MAX_PORTFOLIO_IMAGES = 12
     }
 
     @Transactional
