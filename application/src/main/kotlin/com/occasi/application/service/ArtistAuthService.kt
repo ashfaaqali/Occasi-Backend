@@ -11,6 +11,7 @@ import com.occasi.application.exception.InvalidArtistRefreshTokenException
 import com.occasi.application.model.ArtistPricing
 import com.occasi.application.model.ArtistRefreshToken
 import com.occasi.application.model.ComplexityTier
+import com.occasi.application.model.DesignType
 import com.occasi.application.model.HennaArtist
 import com.occasi.application.repository.ArtistPricingRepository
 import com.occasi.application.repository.ArtistRefreshTokenRepository
@@ -70,16 +71,30 @@ class ArtistAuthService(
 
         request.pricingTiers?.let { tiers ->
             require(tiers.values.all { it > 0 }) { "All pricing tier values must be greater than zero" }
-            tiers.keys.forEach { key ->
-                require(ComplexityTier.entries.any { it.name == key.uppercase() }) {
-                    "Invalid complexity tier: $key"
-                }
-            }
 
-            val pricingEntities = tiers.map { (complexity, price) ->
+            val pricingEntities = tiers.map { (key, price) ->
+                val parts = key.split("_")
+                val (designType, complexity) = if (parts.size == 2) {
+                    val designTypeStr = parts[0].uppercase()
+                    val complexityStr = parts[1].uppercase()
+                    val dType = DesignType.entries.find { it.name == designTypeStr }
+                        ?: throw IllegalArgumentException("Invalid design type: $designTypeStr")
+                    val cTier = ComplexityTier.entries.find { it.name == complexityStr }
+                        ?: throw IllegalArgumentException("Invalid complexity tier: $complexityStr")
+                    Pair(dType, cTier)
+                } else if (parts.size == 1) {
+                    val complexityStr = parts[0].uppercase()
+                    val cTier = ComplexityTier.entries.find { it.name == complexityStr }
+                        ?: throw IllegalArgumentException("Invalid complexity tier: $complexityStr")
+                    Pair(DesignType.HAND, cTier)
+                } else {
+                    throw IllegalArgumentException("Invalid pricing key format: $key")
+                }
+
                 ArtistPricing(
                     artist = savedArtist,
-                    complexity = ComplexityTier.valueOf(complexity.uppercase()),
+                    complexity = complexity,
+                    designType = designType,
                     price = price
                 )
             }

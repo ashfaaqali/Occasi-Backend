@@ -45,6 +45,7 @@ class ArtistPricingService(
  
         // Upsert: delete existing rows, insert new ones (within transaction)
         artistPricingRepository.deleteByArtistId(artistId)
+        artistPricingRepository.flush()
  
         val pricingEntities = pricingTiers.map { (key, price) ->
             val parts = key.split("_")
