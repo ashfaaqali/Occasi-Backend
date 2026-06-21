@@ -2,6 +2,7 @@ package com.occasi.application.service
 
 import com.occasi.application.model.HennaDesign
 import com.occasi.application.model.ComplexityTier
+import com.occasi.application.model.DesignType
 import com.occasi.application.repository.HennaDesignRepository
 import com.occasi.application.repository.ArtistPricingRepository
 import org.springframework.cache.annotation.CacheEvict
@@ -36,9 +37,19 @@ class HennaDesignService(
             null
         }
         if (tier != null) {
-            design.startingPrice = artistPricingRepository.findByComplexityAndDesignType(tier, design.designType)
+            val resolvedPrice = artistPricingRepository.findByComplexityAndDesignType(tier, design.designType)
                 .map { it.price }
-                .minOrNull() ?: 0
+                .minOrNull()
+            design.startingPrice = if (resolvedPrice != null && resolvedPrice > 0) {
+                resolvedPrice
+            } else {
+                when (tier) {
+                    ComplexityTier.SIMPLE -> if (design.designType == DesignType.HAND) 100 else 150
+                    ComplexityTier.MID -> if (design.designType == DesignType.HAND) 200 else 250
+                    ComplexityTier.COMPLEX -> if (design.designType == DesignType.HAND) 300 else 400
+                    ComplexityTier.BRIDAL -> if (design.designType == DesignType.HAND) 800 else 1200
+                }
+            }
         }
         return design
     }
@@ -55,7 +66,17 @@ class HennaDesignService(
                 null
             }
             if (tier != null) {
-                design.startingPrice = minPrices[design.designType to tier] ?: 0
+                val resolvedPrice = minPrices[design.designType to tier]
+                design.startingPrice = if (resolvedPrice != null && resolvedPrice > 0) {
+                    resolvedPrice
+                } else {
+                    when (tier) {
+                        ComplexityTier.SIMPLE -> if (design.designType == DesignType.HAND) 100 else 150
+                        ComplexityTier.MID -> if (design.designType == DesignType.HAND) 200 else 250
+                        ComplexityTier.COMPLEX -> if (design.designType == DesignType.HAND) 300 else 400
+                        ComplexityTier.BRIDAL -> if (design.designType == DesignType.HAND) 800 else 1200
+                    }
+                }
             }
         }
     }

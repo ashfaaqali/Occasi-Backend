@@ -60,6 +60,7 @@ class ArtistPricingService(
         // Update startingPrice to minimum of provided prices
         val startingPrice = pricingTiers.values.minOrNull() ?: 0
         artist.startingPrice = startingPrice
+        artist.updatedAt = java.time.Instant.now()
         hennaArtistRepository.save(artist)
  
         return startingPrice

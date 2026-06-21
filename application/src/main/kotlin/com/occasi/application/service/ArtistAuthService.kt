@@ -16,6 +16,7 @@ import com.occasi.application.repository.ArtistPricingRepository
 import com.occasi.application.repository.ArtistRefreshTokenRepository
 import com.occasi.application.repository.HennaArtistRepository
 import com.occasi.application.util.InputSanitizer
+import org.springframework.cache.annotation.CacheEvict
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -44,6 +45,7 @@ class ArtistAuthService(
     }
 
     @Transactional
+    @CacheEvict(value = ["hennaArtists", "hennaArtistsByCity", "availableCities", "artistDetail", "hennaDesigns", "designDetail"], allEntries = true)
     fun registerArtist(request: ArtistRegisterRequest): ArtistAuthResponse {
         require(request.password.length >= 8) { BackendMessages.Validation.PASSWORD_MIN_LENGTH }
 

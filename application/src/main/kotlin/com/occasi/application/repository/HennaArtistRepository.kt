@@ -11,4 +11,7 @@ interface HennaArtistRepository : JpaRepository<HennaArtist, Long> {
 
     @org.springframework.data.jpa.repository.Query("SELECT DISTINCT h.cityName FROM HennaArtist h ORDER BY h.cityName")
     fun findDistinctCityNames(): List<String>
+
+    @org.springframework.data.jpa.repository.Query("SELECT MAX(h.updatedAt) FROM HennaArtist h")
+    fun findMaxUpdatedAt(): java.time.Instant?
 }

@@ -3,6 +3,7 @@ package com.occasi.application.controller
 import com.occasi.application.constants.BackendRoutes
 import com.occasi.application.model.HennaDesign
 import com.occasi.application.service.HennaDesignService
+import com.occasi.application.repository.HennaArtistRepository
 import jakarta.servlet.http.HttpServletRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -10,14 +11,20 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 @RequestMapping(BackendRoutes.HennaDesigns.BASE)
-class HennaDesignController(private val service: HennaDesignService) {
+class HennaDesignController(
+    private val service: HennaDesignService,
+    private val artistRepository: HennaArtistRepository
+) {
 
     @GetMapping
     fun getAllDesigns(
         request: HttpServletRequest
     ): ResponseEntity<Any> {
         val designs = service.getAllDesigns()
-        val lastModified = designs.maxOfOrNull { it.updatedAt }
+        val designLastModified = designs.maxOfOrNull { it.updatedAt }
+        val artistLastModified = artistRepository.findMaxUpdatedAt()
+
+        val lastModified = listOfNotNull(designLastModified, artistLastModified).maxOrNull()
 
         // Check If-Modified-Since
         val ifModifiedSince = request.getDateHeader("If-Modified-Since")

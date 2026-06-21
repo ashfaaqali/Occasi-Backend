@@ -30,7 +30,7 @@ class HennaArtistService(
     @Cacheable("artistDetail", key = "#id")
     fun getArtistById(id: Long): HennaArtist? = repository.findById(id).orElse(null)
 
-    @CacheEvict(value = ["hennaArtists", "hennaArtistsByCity", "availableCities", "artistDetail"], allEntries = true)
+    @CacheEvict(value = ["hennaArtists", "hennaArtistsByCity", "availableCities", "artistDetail", "hennaDesigns", "designDetail"], allEntries = true)
     fun registerArtist(request: ArtistRegistrationRequest): HennaArtist {
         val artist = HennaArtist(
             name = request.name,
