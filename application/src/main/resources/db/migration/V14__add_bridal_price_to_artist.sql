@@ -1,0 +1,1 @@
+ALTER TABLE henna_artist ADD COLUMN bridal_price INT NOT NULL DEFAULT 0;

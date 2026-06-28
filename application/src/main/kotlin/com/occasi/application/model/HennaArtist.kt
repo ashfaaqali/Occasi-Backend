@@ -19,6 +19,7 @@ data class HennaArtist(
     @Column(columnDefinition = "TEXT")
     var coverImage: String? = null,
     var startingPrice: Int = 0,
+    var bridalPrice: Int = 0,
     var passwordHash: String? = null,
     var updatedAt: Instant = Instant.now(),
 

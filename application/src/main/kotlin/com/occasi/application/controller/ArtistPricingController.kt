@@ -21,7 +21,7 @@ class ArtistPricingController(
         authentication: Authentication
     ): ResponseEntity<PricingResponse> {
         val artistId = authentication.principal as Long
-        val startingPrice = artistPricingService.updatePricing(artistId, request.pricingTiers)
+        val startingPrice = artistPricingService.updatePricing(artistId, request.pricingTiers, request.bridalPrice)
         return ResponseEntity.ok(
             PricingResponse(message = "Pricing updated", startingPrice = startingPrice)
         )

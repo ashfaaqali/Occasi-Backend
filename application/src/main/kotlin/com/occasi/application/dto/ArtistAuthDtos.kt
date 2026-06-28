@@ -30,7 +30,8 @@ data class ArtistRegisterRequest(
     val cityName: String? = null,
     val location: String? = null,
     val coverImage: String? = null,
-    val pricingTiers: Map<String, Int>? = null
+    val pricingTiers: Map<String, Int>? = null,
+    val bridalPrice: Int = 0
 )
 
 data class SendEmailOtpRequest(

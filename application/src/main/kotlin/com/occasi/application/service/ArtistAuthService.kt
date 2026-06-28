@@ -64,6 +64,7 @@ class ArtistAuthService(
             cityName = request.cityName ?: "",
             location = request.location ?: "",
             coverImage = request.coverImage,
+            bridalPrice = request.bridalPrice,
             passwordHash = passwordEncoder.encode(request.password)
         )
 

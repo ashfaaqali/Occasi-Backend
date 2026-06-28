@@ -18,12 +18,12 @@ class ArtistPricingService(
  
     @Transactional
     @CacheEvict(value = ["hennaArtists", "artistDetail", "hennaDesigns", "designDetail"], allEntries = true)
-    fun updatePricing(artistId: Long, pricingTiers: Map<String, Int>): Int {
+    fun updatePricing(artistId: Long, pricingTiers: Map<String, Int>, bridalPrice: Int): Int {
         // Validate all values are positive
         if (pricingTiers.values.any { it <= 0 }) {
             throw InvalidPricingException(BackendMessages.Validation.INVALID_PRICING)
         }
- 
+
         // Validate all keys are valid compound keys of format [DesignType]_[ComplexityTier]
         pricingTiers.keys.forEach { key ->
             val parts = key.split("_")
@@ -39,14 +39,16 @@ class ArtistPricingService(
                 throw InvalidPricingException("Invalid complexity tier: $complexityStr")
             }
         }
- 
+
         val artist = hennaArtistRepository.findById(artistId)
             .orElseThrow { IllegalArgumentException(BackendMessages.Artist.NOT_FOUND) }
- 
+
+        artist.bridalPrice = bridalPrice
+
         // Upsert: delete existing rows, insert new ones (within transaction)
         artistPricingRepository.deleteByArtistId(artistId)
         artistPricingRepository.flush()
- 
+
         val pricingEntities = pricingTiers.map { (key, price) ->
             val parts = key.split("_")
             ArtistPricing(
@@ -57,13 +59,13 @@ class ArtistPricingService(
             )
         }
         artistPricingRepository.saveAll(pricingEntities)
- 
+
         // Update startingPrice to minimum of provided prices
         val startingPrice = pricingTiers.values.minOrNull() ?: 0
         artist.startingPrice = startingPrice
         artist.updatedAt = java.time.Instant.now()
         hennaArtistRepository.save(artist)
- 
+
         return startingPrice
     }
 }
